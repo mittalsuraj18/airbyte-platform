@@ -1,114 +1,95 @@
-@use "scss/colors";
 @use "scss/variables";
-@use "scss/z-indices";
+@use "scss/colors";
 
-$border-radius: variables.$border-radius-lg;
-
-// ------- <table/> --------
-.table {
+.tableView {
   border-spacing: 0;
   width: 100%;
   max-width: 100%;
-  border-radius: $border-radius;
+  border-radius: variables.$border-radius-lg;
+  box-shadow: 0 2px 4px rgb(26 25 77 / 12%);
 
-  &--default {
-    box-shadow: 0 2px 4px colors.$cardShadowColor;
+  &.light {
+    box-shadow: none;
   }
 }
 
-.thead {
-  position: sticky;
-  top: 0;
-  z-index: z-indices.$tableScroll;
-}
-
-// --------- <th/> ---------
-.th {
-  color: colors.$grey-500;
-  text-transform: uppercase;
-  border-bottom: none;
+.tableHeader {
+  padding: variables.$spacing-md variables.$spacing-lg;
+  background-color: colors.$dark-blue;
   text-align: left;
   font-size: 10px;
-  line-height: 12px;
+  border-bottom: none;
   font-weight: 600;
-  width: auto;
-  padding: variables.$spacing-md variables.$spacing-lg;
-
-  &--sorted {
-    color: colors.$blue;
-  }
-
-  &--default {
-    background-color: colors.$grey-30;
-  }
-
-  &--light {
-    background-color: colors.$grey-50;
-    color: colors.$grey;
-    text-transform: capitalize;
-    font-size: 11px;
-    font-weight: 400;
-  }
-
-  &--white {
-    background-color: colors.$white;
-  }
+  text-transform: uppercase;
+  color: colors.$grey-300;
 
   &:first-child {
-    border-radius: $border-radius 0 0;
+    padding-left: variables.$spacing-2xl;
+    border-radius: variables.$border-radius-lg 0 0;
   }
 
   &:last-child {
     padding-left: variables.$spacing-lg;
-    border-radius: 0 $border-radius 0 0;
+    border-radius: 0 variables.$border-radius-lg 0 0;
   }
 
-  > button {
-    padding: 0;
+  &.highlighted {
+    color: colors.$white;
+  }
+
+  &.light {
+    background: none;
+    font-size: 11px;
+    font-weight: 400;
+    text-transform: capitalize;
+
+    &:first-child {
+      padding-left: variables.$spacing-lg;
+    }
   }
 }
 
-// --------- <tr/> ---------
-.tr {
-  background-color: colors.$white;
-  cursor: auto;
+.tableData {
+  max-width: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: normal;
+  color: colors.$dark-blue;
+  padding: variables.$spacing-lg;
+  border-bottom: variables.$border-thin solid colors.$grey-100;
 
-  &--clickable {
+  &.responsive {
+    max-width: 0;
+  }
+}
+
+.tableRow {
+  cursor: auto;
+  background-color: colors.$white;
+
+  &.hasClick {
     cursor: pointer;
+  }
+
+  &.erroredRows {
+    background-color: colors.$red-50;
   }
 
   &:hover {
     background-color: colors.$grey-50;
   }
-}
 
-// --------- <td/> ---------
-
-.td {
-  padding: variables.$spacing-md variables.$spacing-lg;
-  font-size: variables.$font-size-sm;
-  line-height: 1.2;
-  font-weight: normal;
-  color: colors.$dark-blue;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  border-bottom: variables.$border-thin solid colors.$grey-50;
-  width: auto;
-
-  &--responsive {
-    max-width: 0;
-  }
-
-  tr:last-child > & {
+  &:last-child > .tableData {
     border-bottom: none;
 
     &:first-child {
-      border-radius: 0 0 0 $border-radius;
+      border-radius: 0 0 0 variables.$border-radius-lg;
     }
 
     &:last-child {
-      border-radius: 0 0 $border-radius;
+      border-radius: 0 0 variables.$border-radius-lg 0;
     }
   }
 }

@@ -3,8 +3,7 @@
 .container {
   margin-bottom: variables.$spacing-xl;
 
-  &:empty,
-  &:last-child {
+  &:empty {
     margin-bottom: 0;
   }
 }

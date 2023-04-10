@@ -43,7 +43,7 @@ export const PillButton: React.FC<PillButtonProps> = ({
   );
 
   return (
-    <button type="button" {...buttonProps} className={buttonClassName} data-error={hasError}>
+    <button type="button" {...buttonProps} className={buttonClassName}>
       {Children.map(arrayChildren, (child, index) => (
         <>
           <div key={index} className={styles.labelContainer}>

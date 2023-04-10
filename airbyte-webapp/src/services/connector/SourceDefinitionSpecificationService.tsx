@@ -12,8 +12,7 @@ import { SCOPE_WORKSPACE } from "../Scope";
 
 export const sourceDefinitionSpecificationKeys = {
   all: [SCOPE_WORKSPACE, "sourceDefinitionSpecification"] as const,
-  detail: (sourceDefId: string | number, sourceId?: string) =>
-    [...sourceDefinitionSpecificationKeys.all, "details", { sourceDefId, sourceId }] as const,
+  detail: (id: string | number) => [...sourceDefinitionSpecificationKeys.all, "details", id] as const,
 };
 
 function useGetService(): SourceDefinitionSpecificationService {
@@ -26,17 +25,11 @@ function useGetService(): SourceDefinitionSpecificationService {
   );
 }
 
-export const useGetSourceDefinitionSpecification = (sourceDefinitionId: string, sourceId?: string) => {
+export const useGetSourceDefinitionSpecification = (id: string) => {
   const service = useGetService();
-
   const { workspaceId } = useCurrentWorkspace();
-  return useSuspenseQuery(sourceDefinitionSpecificationKeys.detail(sourceDefinitionId, sourceId), () => {
-    if (sourceId) {
-      return service.getForSource(sourceId);
-    }
 
-    return service.get(sourceDefinitionId, workspaceId);
-  });
+  return useSuspenseQuery(sourceDefinitionSpecificationKeys.detail(id), () => service.get(id, workspaceId));
 };
 
 export const useGetSourceDefinitionSpecificationAsync = (id: string | null) => {

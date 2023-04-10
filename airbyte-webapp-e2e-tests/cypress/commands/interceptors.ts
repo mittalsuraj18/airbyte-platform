@@ -1,11 +1,9 @@
-import { RouteHandler } from "cypress/types/net-stubbing";
+export const interceptGetConnectionRequest = () =>
+  cy.intercept("/api/v1/web_backend/connections/get").as("getConnection");
+export const waitForGetConnectionRequest = () => cy.wait("@getConnection");
 
-export const interceptGetConnectionRequest = (response?: RouteHandler) =>
-  cy.intercept("/api/v1/web_backend/connections/get", response).as("getConnection");
-export const waitForGetConnectionRequest = () => cy.wait("@getConnection", { timeout: 20000 });
-
-export const interceptUpdateConnectionRequest = (response?: RouteHandler) =>
-  cy.intercept("/api/v1/web_backend/connections/update", response).as("updateConnection");
+export const interceptUpdateConnectionRequest = () =>
+  cy.intercept("/api/v1/web_backend/connections/update").as("updateConnection");
 export const waitForUpdateConnectionRequest = () => cy.wait("@updateConnection", { timeout: 10000 });
 
 export const interceptDiscoverSchemaRequest = () =>
@@ -14,7 +12,7 @@ export const waitForDiscoverSchemaRequest = () => cy.wait("@discoverSchema");
 
 export const interceptCreateConnectionRequest = () =>
   cy.intercept("/api/v1/web_backend/connections/create").as("createConnection");
-export const waitForCreateConnectionRequest = () => cy.wait("@createConnection", { timeout: 20000 });
+export const waitForCreateConnectionRequest = () => cy.wait("@createConnection");
 
 export const interceptGetSourcesListRequest = () => cy.intercept("/api/v1/sources/list").as("getSourcesList");
 export const waitForGetSourcesListRequest = () => cy.wait("@getSourcesList");

@@ -4,6 +4,7 @@
 
 package io.airbyte.workers.internal;
 
+import io.airbyte.commons.functional.CheckedConsumer;
 import io.airbyte.config.WorkerDestinationConfig;
 import io.airbyte.protocol.models.AirbyteMessage;
 import java.nio.file.Path;
@@ -14,7 +15,7 @@ import java.util.Optional;
  * the platform. It encapsulates the full lifecycle of the Destination as well as any inputs and
  * outputs.
  */
-public interface AirbyteDestination extends AutoCloseable {
+public interface AirbyteDestination extends CheckedConsumer<AirbyteMessage, Exception>, AutoCloseable {
 
   /**
    * Starts the Destination container. It instantiates a writer to write to STDIN on that container.
@@ -34,6 +35,7 @@ public interface AirbyteDestination extends AutoCloseable {
    * @param message message to send to destination.
    * @throws Exception - throws if there is any failure in writing to Destination.
    */
+  @Override
   void accept(AirbyteMessage message) throws Exception;
 
   /**
@@ -42,7 +44,7 @@ public interface AirbyteDestination extends AutoCloseable {
    * ({@link AirbyteDestination#accept(AirbyteMessage)} ()}) will be flushed. Any additional messages
    * sent to accept will not be flushed. In fact, flush should fail if the caller attempts to send it
    * additional messages after calling this method.
-   * <p>
+   *
    * (Potentially should just rename it to flush)
    *
    * @throws Exception - throws if there is any failure when flushing.

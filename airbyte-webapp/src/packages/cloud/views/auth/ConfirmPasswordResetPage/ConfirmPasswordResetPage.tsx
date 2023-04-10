@@ -8,6 +8,7 @@ import * as yup from "yup";
 import { LabeledInput } from "components";
 import { Button } from "components/ui/Button";
 import { Link } from "components/ui/Link";
+import { ToastType } from "components/ui/Toast";
 
 import { useNotificationService } from "hooks/services/Notification/NotificationService";
 import { useQuery } from "hooks/useQuery";
@@ -48,7 +49,7 @@ export const ResetPasswordConfirmPage: React.FC = () => {
             registerNotification({
               id: "confirmResetPassword.success",
               text: formatMessage({ id: "confirmResetPassword.success" }),
-              type: "success",
+              type: ToastType.SUCCESS,
             });
             navigate(CloudRoutes.Login);
           } catch (err) {
@@ -61,7 +62,7 @@ export const ResetPasswordConfirmPage: React.FC = () => {
                   text: formatMessage({
                     id: "confirmResetPassword.error.expiredActionCode",
                   }),
-                  type: "error",
+                  type: ToastType.ERROR,
                 });
                 break;
               case AuthErrorCodes.INVALID_OOB_CODE:
@@ -70,7 +71,7 @@ export const ResetPasswordConfirmPage: React.FC = () => {
                   text: formatMessage({
                     id: "confirmResetPassword.error.invalidActionCode",
                   }),
-                  type: "error",
+                  type: ToastType.ERROR,
                 });
                 break;
               case AuthErrorCodes.WEAK_PASSWORD:
@@ -79,7 +80,7 @@ export const ResetPasswordConfirmPage: React.FC = () => {
                   text: formatMessage({
                     id: "confirmResetPassword.error.weakPassword",
                   }),
-                  type: "warning",
+                  type: ToastType.WARNING,
                 });
                 break;
               default:
@@ -88,7 +89,7 @@ export const ResetPasswordConfirmPage: React.FC = () => {
                   text: formatMessage({
                     id: "confirmResetPassword.error.default",
                   }),
-                  type: "error",
+                  type: ToastType.ERROR,
                 });
             }
           }

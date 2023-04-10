@@ -248,14 +248,14 @@ Returns the Airbyte Webapp Image
 {{- end -}}
 
 {{/*
-Returns the Airbyte PodSweeper Image
+Returns the Airbyte podSweeper Image
 */}}
 {{- define "airbyte.podSweeperImage" -}}
 {{- include "common.images.image" (dict "imageRoot" .Values.podSweeper.image "global" .Values.global) -}}
 {{- end -}}
 
 {{/*
-Returns the Airbyte Worker Image
+Returns the Airbyte worker Image
 */}}
 {{- define "airbyte.workerImage" -}}
 {{- include "common.images.image" (dict "imageRoot" .Values.worker.image "global" .Values.global) -}}

@@ -58,7 +58,10 @@ const IGNORED_PACKAGES = [`airbyte-webapp@${version}`];
  * Overwrite licenses for specific packages manually, e.g. because they can't be detected properly.
  */
 const LICENSE_OVERWRITES = {
-  // "package-name@version": "ACTUAL-LICENSE",
+  "glob-to-regexp@0.3.0": "BSD-3-Clause",
+  "trim@0.0.1": "MIT",
+  "backslash@0.2.0": "MIT",
+  "browser-assert@1.2.1": "MIT", // via README (https://github.com/socialally/browser-assert/tree/v1.2.1)
 };
 
 const checkLicenses = promisify(checker.init);

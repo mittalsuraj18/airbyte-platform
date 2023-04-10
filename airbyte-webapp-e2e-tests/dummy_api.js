@@ -3,51 +3,46 @@
 
 // Start with `npm run createdummyapi`
 
-const http = require("http");
+const http = require('http');
 
 const itemsWithoutSlices = [{ name: "abc" }, { name: "def" }, { name: "xxx" }, { name: "yyy" }];
-const itemsExceedingReadLimit = Array.from(Array(100).keys()).map((count) => ({
-  exceedingPageLimit: `subitem${count}`,
-}));
+const itemsExceedingReadLimit = Array.from(Array(100).keys()).map(count => ({ exceedingPageLimit: "subitem" + count }))
+const PAGE_SIZE = 2;
 
-const paginateResults = function (result, offset, page_size) {
-  return [...result].splice(offset, page_size);
-};
+const paginateResults = function(result, offset, page_size) {
+  return [...result].splice(offset, page_size)
+}
 
-const generateResults = function (item_id, count) {
-  key = `subitem${item_id}`;
-  return Array.from(Array(count).keys()).map((i) => ({ key: `subitem${i}` }));
-};
+const generateResults = function(item_id, count) {
+  key = "subitem" + item_id
+  return Array.from(Array(count).keys()).map(i => ({ key: "subitem" + i }))
+}
 
 const requestListener = function (req, res) {
-  if (req.headers.authorization !== "Bearer theauthkey") {
-    res.writeHead(403);
-    res.end(JSON.stringify({ error: "Bad credentials" }));
-    return;
+  if (req.headers["authorization"] !== "Bearer theauthkey") {
+    res.writeHead(403); res.end(JSON.stringify({ error: "Bad credentials" })); return;
   }
 
   if (!req.url.startsWith("/items")) {
-    res.writeHead(404);
-    res.end(JSON.stringify({ error: "Not found" }));
+    res.writeHead(404); res.end(JSON.stringify({ error: "Not found" })); return;
   } else {
-    limit = req.headers.limit ? Number(req.headers.limit) : 2;
-    offset = req.headers.offset ? Number(req.headers.offset) : 0;
+    offset = req.headers["offset"] ? Number(req.headers["offset"]) : 0
     res.setHeader("Content-Type", "application/json");
     res.writeHead(200);
-    if (req.url === "/items/") {
-      res.end(JSON.stringify({ items: paginateResults(itemsWithoutSlices, offset, limit) }));
-    } else if (req.url === "/items/exceeding-page-limit/") {
-      res.end(JSON.stringify({ items: paginateResults(itemsExceedingReadLimit, offset, limit) }));
+    if (req.url === "/items") {
+      res.end(JSON.stringify({ items: paginateResults(itemsWithoutSlices, offset, PAGE_SIZE) }));
+    } else if(req.url === "/items/exceeding-page-limit") {
+      res.end(JSON.stringify({ items: paginateResults(itemsExceedingReadLimit, offset, PAGE_SIZE) }));
     } else {
-      item_id = req.url.split("/").pop();
-      res.end(JSON.stringify({ items: paginateResults(generateResults(item_id, 20), offset, limit) }));
+      item_id = req.url.split("/").pop()
+      res.end(JSON.stringify({ items: paginateResults(generateResults(item_id, 20), offset, PAGE_SIZE) }));
     }
   }
-};
+}
 
 const server = http.createServer(requestListener);
 server.listen(6767);
 
-process.on("SIGINT", () => {
-  process.exit();
-});
+process.on('SIGINT', function () {
+  process.exit()
+})

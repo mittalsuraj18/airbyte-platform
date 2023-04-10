@@ -6,7 +6,7 @@ description: information required for connection.
 type: object
 required:
   - connectionConfiguration
-additionalProperties: true
+additionalProperties: false
 properties:
   actorType:
     "$ref": ActorType.yaml

@@ -6,7 +6,6 @@ package io.airbyte.bootloader;
 
 import io.airbyte.commons.features.FeatureFlags;
 import io.airbyte.config.init.ApplyDefinitionsHelper;
-import io.airbyte.config.init.DeclarativeSourceUpdater;
 import io.airbyte.config.init.PostLoadExecutor;
 import io.airbyte.persistence.job.JobPersistence;
 import jakarta.inject.Singleton;
@@ -28,18 +27,15 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultPostLoadExecutor implements PostLoadExecutor {
 
   private final ApplyDefinitionsHelper applyDefinitionsHelper;
-  private final DeclarativeSourceUpdater declarativeSourceUpdater;
   private final FeatureFlags featureFlags;
   private final JobPersistence jobPersistence;
   private final SecretMigrator secretMigrator;
 
   public DefaultPostLoadExecutor(final ApplyDefinitionsHelper applyDefinitionsHelper,
-                                 final DeclarativeSourceUpdater declarativeSourceUpdater,
                                  final FeatureFlags featureFlags,
                                  final JobPersistence jobPersistence,
                                  final SecretMigrator secretMigrator) {
     this.applyDefinitionsHelper = applyDefinitionsHelper;
-    this.declarativeSourceUpdater = declarativeSourceUpdater;
     this.featureFlags = featureFlags;
     this.jobPersistence = jobPersistence;
     this.secretMigrator = secretMigrator;
@@ -48,7 +44,6 @@ public class DefaultPostLoadExecutor implements PostLoadExecutor {
   @Override
   public void execute() throws Exception {
     applyDefinitionsHelper.apply();
-    declarativeSourceUpdater.apply();
 
     if (featureFlags.forceSecretMigration() || !jobPersistence.isSecretMigrated()) {
       if (this.secretMigrator != null) {

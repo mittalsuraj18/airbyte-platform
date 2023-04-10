@@ -77,7 +77,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <div
         className={classNames(containerClassName, styles.container, {
           [styles.disabled]: props.disabled,
-          [styles.readOnly]: props.readOnly,
           [styles.focused]: focused,
           [styles.light]: light,
           [styles.error]: error,
@@ -95,7 +94,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             styles.input,
             {
               [styles.disabled]: props.disabled,
-              [styles.readOnly]: props.readOnly,
               [styles.password]: isPassword,
               "fs-exclude": isPassword,
             },

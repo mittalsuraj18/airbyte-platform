@@ -1,9 +1,9 @@
-import { faClose, faRefresh } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronRight, faClose, faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useState } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { JobFailure } from "components/JobFailure";
+import { JobLogs } from "components/JobItem/components/JobLogs";
 import { Button } from "components/ui/Button";
 import { Card } from "components/ui/Card";
 import { FlexContainer, FlexItem } from "components/ui/Flex";
@@ -14,6 +14,7 @@ import { SynchronousJobRead } from "core/request/AirbyteClient";
 
 import styles from "./TestCard.module.scss";
 import TestingConnectionSuccess from "./TestingConnectionSuccess";
+import { TestingConnectionError } from "../../ConnectorForm/components/TestingConnectionError";
 
 interface IProps {
   formType: "source" | "destination";
@@ -43,9 +44,30 @@ export const TestCard: React.FC<IProps> = ({
   isEditMode,
   dirty,
 }) => {
+  const [logsVisible, setLogsVisible] = useState(false);
+
   const renderStatusMessage = () => {
     if (errorMessage) {
-      return <JobFailure job={job} fallbackMessage={errorMessage} />;
+      return (
+        <FlexContainer direction="column">
+          <TestingConnectionError errorMessage={errorMessage} />
+          {job && (
+            <div>
+              <Button
+                variant="clear"
+                type="button"
+                icon={<FontAwesomeIcon icon={logsVisible ? faChevronDown : faChevronRight} />}
+                onClick={() => {
+                  setLogsVisible(!logsVisible);
+                }}
+              >
+                <FormattedMessage id="connector.testLogs" />
+              </Button>
+              {logsVisible && <JobLogs job={job} jobIsFailed />}
+            </div>
+          )}
+        </FlexContainer>
+      );
     }
     if (connectionTestSuccess) {
       return <TestingConnectionSuccess />;
@@ -64,6 +86,7 @@ export const TestCard: React.FC<IProps> = ({
           </FlexItem>
           {isTestConnectionInProgress || !isEditMode ? (
             <Button
+              className={styles.button}
               icon={<FontAwesomeIcon icon={faClose} />}
               variant="secondary"
               type="button"

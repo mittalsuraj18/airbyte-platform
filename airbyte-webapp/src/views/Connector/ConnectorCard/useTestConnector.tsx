@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 import { ConnectorHelper } from "core/domain/connector";
 import { ConnectorT } from "core/domain/connector/types";
@@ -29,13 +29,6 @@ export const useTestConnector = (
   const workspace = useCurrentWorkspace();
 
   const abortControllerRef = useRef<AbortController | null>(null);
-
-  useEffect(
-    () => () => {
-      abortControllerRef.current?.abort();
-    },
-    []
-  );
 
   return {
     isTestConnectionInProgress: isLoading,

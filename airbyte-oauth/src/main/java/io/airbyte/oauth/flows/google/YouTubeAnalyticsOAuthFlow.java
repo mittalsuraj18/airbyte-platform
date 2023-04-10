@@ -14,8 +14,7 @@ import java.util.function.Supplier;
  */
 public class YouTubeAnalyticsOAuthFlow extends GoogleOAuthFlow {
 
-  private static final String SCOPE_URL =
-      "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly";
+  private static final String SCOPE_URL = "https://www.googleapis.com/auth/yt-analytics.readonly";
 
   public YouTubeAnalyticsOAuthFlow(final ConfigRepository configRepository, final HttpClient httpClient) {
     super(configRepository, httpClient);

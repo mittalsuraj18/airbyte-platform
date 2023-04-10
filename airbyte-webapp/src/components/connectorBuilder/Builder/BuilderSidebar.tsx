@@ -3,26 +3,30 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classnames from "classnames";
 import { useFormikContext } from "formik";
 import React from "react";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
+import { useNavigate } from "react-router-dom";
 
 import Indicator from "components/Indicator";
-import { FlexContainer } from "components/ui/Flex";
+import { Button } from "components/ui/Button";
 import { Heading } from "components/ui/Heading";
 import { Text } from "components/ui/Text";
 
 import { Action, Namespace } from "core/analytics";
 import { useAnalyticsService } from "hooks/services/Analytics";
+import { useConfirmationModalService } from "hooks/services/ConfirmationModal";
+import { RoutePaths } from "pages/routePaths";
 import { BuilderView, useConnectorBuilderFormState } from "services/connectorBuilder/ConnectorBuilderStateService";
 
 import { AddStreamButton } from "./AddStreamButton";
 import styles from "./BuilderSidebar.module.scss";
-import { SavingIndicator } from "./SavingIndicator";
 import { UiYamlToggleButton } from "./UiYamlToggleButton";
-import { CDK_VERSION } from "../cdk";
-import { ConnectorImage } from "../ConnectorImage";
 import { DownloadYamlButton } from "../DownloadYamlButton";
-import { PublishButton } from "../PublishButton";
-import { BuilderFormValues, getInferredInputs } from "../types";
+import {
+  BuilderFormValues,
+  DEFAULT_BUILDER_FORM_VALUES,
+  DEFAULT_JSON_MANIFEST_VALUES,
+  getInferredInputs,
+} from "../types";
 import { useBuilderErrors } from "../useBuilderErrors";
 
 interface ViewSelectButtonProps {
@@ -62,83 +66,97 @@ interface BuilderSidebarProps {
 }
 
 export const BuilderSidebar: React.FC<BuilderSidebarProps> = React.memo(({ className, toggleYamlEditor }) => {
+  const navigate = useNavigate();
   const analyticsService = useAnalyticsService();
+  const { formatMessage } = useIntl();
   const { hasErrors } = useBuilderErrors();
-  const { yamlManifest, selectedView, setSelectedView, builderFormValues } = useConnectorBuilderFormState();
+  const { openConfirmationModal, closeConfirmationModal } = useConfirmationModalService();
+  const { yamlManifest, selectedView, setSelectedView, setJsonManifest, setBuilderFormValues } =
+    useConnectorBuilderFormState();
   const { values } = useFormikContext<BuilderFormValues>();
+  const handleResetForm = () => {
+    openConfirmationModal({
+      text: "connectorBuilder.resetModal.text",
+      title: "connectorBuilder.resetModal.title",
+      submitButtonText: "connectorBuilder.resetModal.submitButton",
+      onSubmit: () => {
+        setBuilderFormValues(DEFAULT_BUILDER_FORM_VALUES, false);
+        setJsonManifest(DEFAULT_JSON_MANIFEST_VALUES);
+        closeConfirmationModal();
+        analyticsService.track(Namespace.CONNECTOR_BUILDER, Action.RESET_ALL, {
+          actionDescription: "Connector Builder UI reset back to blank slate",
+        });
+        navigate(RoutePaths.ConnectorBuilder);
+      },
+    });
+  };
   const handleViewSelect = (selectedView: BuilderView) => {
     setSelectedView(selectedView);
   };
 
   return (
-    <FlexContainer direction="column" alignItems="stretch" gap="xl" className={classnames(className, styles.container)}>
+    <div className={classnames(className, styles.container)}>
       <UiYamlToggleButton yamlSelected={false} onClick={toggleYamlEditor} />
 
-      <FlexContainer direction="column" alignItems="center">
-        <ConnectorImage />
+      {/* TODO: replace with uploaded img when that functionality is added */}
+      <img
+        className={styles.connectorImg}
+        src="/logo.png"
+        alt={formatMessage({ id: "connectorBuilder.connectorImgAlt" })}
+      />
 
-        <div className={styles.connectorName}>
-          <Heading as="h2" size="sm">
-            {values.global?.connectorName}
-          </Heading>
-        </div>
+      <div className={styles.connectorName}>
+        <Heading as="h2" size="sm" className={styles.connectorNameText}>
+          {values.global?.connectorName}
+        </Heading>
+      </div>
 
-        {builderFormValues.streams.length > 0 && <SavingIndicator />}
-      </FlexContainer>
+      <ViewSelectButton
+        data-testid="navbutton-global"
+        className={styles.globalConfigButton}
+        selected={selectedView === "global"}
+        showErrorIndicator={hasErrors(true, ["global"])}
+        onClick={() => {
+          handleViewSelect("global");
+          analyticsService.track(Namespace.CONNECTOR_BUILDER, Action.GLOBAL_CONFIGURATION_SELECT, {
+            actionDescription: "Global Configuration view selected",
+          });
+        }}
+      >
+        <FontAwesomeIcon icon={faSliders} />
+        <FormattedMessage id="connectorBuilder.globalConfiguration" />
+      </ViewSelectButton>
 
-      <FlexContainer direction="column" alignItems="stretch" gap="none">
-        <ViewSelectButton
-          data-testid="navbutton-global"
-          selected={selectedView === "global"}
-          showErrorIndicator={hasErrors(true, ["global"])}
-          onClick={() => {
-            handleViewSelect("global");
-            analyticsService.track(Namespace.CONNECTOR_BUILDER, Action.GLOBAL_CONFIGURATION_SELECT, {
-              actionDescription: "Global Configuration view selected",
-            });
+      <ViewSelectButton
+        data-testid="navbutton-inputs"
+        showErrorIndicator={false}
+        className={styles.globalConfigButton}
+        selected={selectedView === "inputs"}
+        onClick={() => {
+          handleViewSelect("inputs");
+          analyticsService.track(Namespace.CONNECTOR_BUILDER, Action.USER_INPUTS_SELECT, {
+            actionDescription: "User Inputs view selected",
+          });
+        }}
+      >
+        <FontAwesomeIcon icon={faUser} />
+        <FormattedMessage
+          id="connectorBuilder.userInputs"
+          values={{
+            number: values.inputs.length + getInferredInputs(values.global, values.inferredInputOverrides).length,
           }}
-        >
-          <FontAwesomeIcon icon={faSliders} />
-          <Text className={styles.streamViewText}>
-            <FormattedMessage id="connectorBuilder.globalConfiguration" />
-          </Text>
-        </ViewSelectButton>
+        />
+      </ViewSelectButton>
 
-        <ViewSelectButton
-          data-testid="navbutton-inputs"
-          showErrorIndicator={false}
-          selected={selectedView === "inputs"}
-          onClick={() => {
-            handleViewSelect("inputs");
-            analyticsService.track(Namespace.CONNECTOR_BUILDER, Action.USER_INPUTS_SELECT, {
-              actionDescription: "User Inputs view selected",
-            });
-          }}
-        >
-          <FontAwesomeIcon icon={faUser} />
-          <Text className={styles.streamViewText}>
-            <FormattedMessage
-              id="connectorBuilder.userInputs"
-              values={{
-                number: values.inputs.length + getInferredInputs(values.global, values.inferredInputOverrides).length,
-              }}
-            />
-          </Text>
-        </ViewSelectButton>
-      </FlexContainer>
+      <div className={styles.streamsHeader}>
+        <Text className={styles.streamsHeading} size="xs" bold>
+          <FormattedMessage id="connectorBuilder.streamsHeading" values={{ number: values.streams.length }} />
+        </Text>
 
-      <FlexContainer direction="column" alignItems="stretch" gap="none" className={styles.streamList}>
-        <div className={styles.streamsHeader}>
-          <Text className={styles.streamsHeading} size="xs" bold>
-            <FormattedMessage id="connectorBuilder.streamsHeading" values={{ number: values.streams.length }} />
-          </Text>
+        <AddStreamButton onAddStream={(addedStreamNum) => handleViewSelect(addedStreamNum)} data-testid="add-stream" />
+      </div>
 
-          <AddStreamButton
-            onAddStream={(addedStreamNum) => handleViewSelect(addedStreamNum)}
-            data-testid="add-stream"
-          />
-        </div>
-
+      <div className={styles.streamList}>
         {values.streams.map(({ name, id }, num) => (
           <ViewSelectButton
             key={num}
@@ -163,19 +181,12 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = React.memo(({ class
             )}
           </ViewSelectButton>
         ))}
-      </FlexContainer>
-      <FlexContainer direction="column" alignItems="stretch" gap="md">
-        <DownloadYamlButton yamlIsValid yaml={yamlManifest} />
-        <PublishButton />
-      </FlexContainer>
-      <Text size="sm" color="grey" align="center">
-        <FormattedMessage
-          id="connectorBuilder.cdkVersion"
-          values={{
-            version: CDK_VERSION,
-          }}
-        />
-      </Text>
-    </FlexContainer>
+      </div>
+
+      <DownloadYamlButton className={styles.downloadButton} yamlIsValid yaml={yamlManifest} />
+      <Button className={styles.resetButton} full variant="clear" onClick={handleResetForm}>
+        <FormattedMessage id="connectorBuilder.resetAll" />
+      </Button>
+    </div>
   );
 });

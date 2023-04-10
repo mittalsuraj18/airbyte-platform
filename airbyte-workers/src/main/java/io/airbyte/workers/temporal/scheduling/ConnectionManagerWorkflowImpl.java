@@ -6,6 +6,7 @@ package io.airbyte.workers.temporal.scheduling;
 
 import static io.airbyte.metrics.lib.ApmTraceConstants.Tags.ATTEMPT_NUMBER_KEY;
 import static io.airbyte.metrics.lib.ApmTraceConstants.Tags.CONNECTION_ID_KEY;
+import static io.airbyte.metrics.lib.ApmTraceConstants.Tags.JOB_ID_KEY;
 import static io.airbyte.metrics.lib.ApmTraceConstants.WORKFLOW_TRACE_OPERATION_NAME;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -479,8 +480,10 @@ public class ConnectionManagerWorkflowImpl implements ConnectionManagerWorkflow 
     connectionUpdaterInput.setSkipScheduling(false);
   }
 
+  @Trace(operationName = WORKFLOW_TRACE_OPERATION_NAME)
   @Override
   public void submitManualSync() {
+    traceConnectionId();
     if (workflowState.isRunning()) {
       log.info("Can't schedule a manual workflow if a sync is running for connection {}", connectionId);
       return;
@@ -510,8 +513,10 @@ public class ConnectionManagerWorkflowImpl implements ConnectionManagerWorkflow 
     cancelJob();
   }
 
+  @Trace(operationName = WORKFLOW_TRACE_OPERATION_NAME)
   @Override
   public void connectionUpdated() {
+    traceConnectionId();
     workflowState.setUpdated(true);
   }
 
@@ -545,15 +550,20 @@ public class ConnectionManagerWorkflowImpl implements ConnectionManagerWorkflow 
     }
   }
 
+  @Trace(operationName = WORKFLOW_TRACE_OPERATION_NAME)
   @Override
   public WorkflowState getState() {
+    traceConnectionId();
     return workflowState;
   }
 
+  @Trace(operationName = WORKFLOW_TRACE_OPERATION_NAME)
   @Override
   public JobInformation getJobInformation() {
+    traceConnectionId();
     final Long jobId = workflowInternalState.getJobId() != null ? workflowInternalState.getJobId() : NON_RUNNING_JOB_ID;
     final Integer attemptNumber = workflowInternalState.getAttemptNumber();
+    ApmTraceUtils.addTagsToTrace(Map.of(JOB_ID_KEY, jobId));
     return new JobInformation(
         jobId,
         attemptNumber == null ? NON_RUNNING_ATTEMPT_ID : attemptNumber);

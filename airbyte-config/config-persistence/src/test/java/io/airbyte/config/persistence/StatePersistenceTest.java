@@ -60,8 +60,7 @@ class StatePersistenceTest extends BaseConfigDatabaseTest {
     final ConfigRepository configRepository = new ConfigRepository(
         database,
         new ActorDefinitionMigrator(new ExceptionWrappingDatabase(database)),
-        new StandardSyncPersistence(database),
-        MockData.MAX_SECONDS_BETWEEN_MESSAGE_SUPPLIER);
+        new StandardSyncPersistence(database));
 
     final StandardWorkspace workspace = MockData.standardWorkspaces().get(0);
     final StandardSourceDefinition sourceDefinition = MockData.publicSourceDefinition();

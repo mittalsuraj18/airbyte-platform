@@ -6,7 +6,7 @@ description: information output by the connection.
 type: object
 required:
   - state
-additionalProperties: true
+additionalProperties: false
 properties:
   state:
     description: Integration specific blob. Must be a valid JSON string.

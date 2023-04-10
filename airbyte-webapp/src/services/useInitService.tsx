@@ -1,10 +1,9 @@
-import { DependencyList, useRef } from "react";
-import { useUpdateEffect } from "react-use";
+import { DependencyList, useEffect, useRef } from "react";
 
 export function useInitService<T>(f: () => T, deps: DependencyList): T {
   const service = useRef<T | null>(null);
 
-  useUpdateEffect(() => {
+  useEffect(() => {
     if (service.current !== null) {
       service.current = f();
     }

@@ -14,10 +14,9 @@ import { Button } from "components/ui/Button";
 import { Heading } from "components/ui/Heading";
 import { Input } from "components/ui/Input";
 import { Text } from "components/ui/Text";
+import { ToastType } from "components/ui/Toast";
 import { Tooltip } from "components/ui/Tooltip";
 
-import { useNotificationConfigTest } from "core/api";
-import { Notification, NotificationType } from "core/api/types/AirbyteClient";
 import { useNotificationService } from "hooks/services/Notification";
 import useWorkspace, { WebhookPayload } from "hooks/services/useWorkspace";
 import { links } from "utils/links";
@@ -50,9 +49,8 @@ export const WebHookForm: React.FC<WebHookFormProps> = ({ webhook }) => {
   const [webhookViewGuide, setWebhookViewGuide] = useState(false);
   const [formAction, setFormAction] = useState<FormActionType>({ test: false, save: false });
   const { registerNotification, unregisterAllNotifications } = useNotificationService();
-  const { updateWebhook } = useWorkspace();
+  const { updateWebhook, testWebhook } = useWorkspace();
   const { formatMessage } = useIntl();
-  const testWebhook = useNotificationConfigTest();
 
   const webhookAction = async (action: WebhookAction, data: WebhookPayload) => {
     unregisterAllNotifications();
@@ -63,7 +61,7 @@ export const WebHookForm: React.FC<WebHookFormProps> = ({ webhook }) => {
           registerNotification({
             id: "settings.webhook.test.passed",
             text: formatMessage({ id: "settings.webhook.test.passed" }),
-            type: "success",
+            type: ToastType.SUCCESS,
           });
           break;
         }
@@ -71,7 +69,7 @@ export const WebHookForm: React.FC<WebHookFormProps> = ({ webhook }) => {
           registerNotification({
             id: "settings.webhook.test.failed",
             text: formatMessage({ id: "settings.webhook.test.failed" }),
-            type: "error",
+            type: ToastType.ERROR,
           });
           break;
         }
@@ -90,7 +88,7 @@ export const WebHookForm: React.FC<WebHookFormProps> = ({ webhook }) => {
             registerNotification({
               id: "settings.webhook.save.failed",
               text: formatMessage({ id: "settings.webhook.save.failed" }),
-              type: "error",
+              type: ToastType.ERROR,
             });
             break;
           }
@@ -103,14 +101,7 @@ export const WebHookForm: React.FC<WebHookFormProps> = ({ webhook }) => {
   const testWebhookAction = async (data: WebhookPayload): Promise<boolean> => {
     try {
       // TODO: Temporary solution. The current implementation of the back-end requires at least one selected trigger). Should be removed after back-end fixes
-      const payload: Notification = {
-        notificationType: NotificationType.slack,
-        sendOnFailure: !!data.sendOnFailure,
-        sendOnSuccess: true,
-        slackConfiguration: {
-          webhook: data.webhook ?? "",
-        },
-      };
+      const payload = { ...data, sendOnSuccess: true };
       return (await testWebhook(payload))?.status === "succeeded";
     } catch (e) {
       return false;

@@ -15,8 +15,4 @@ public interface TaskQueueMapper {
 
   String getTaskQueue(Geography geography, TemporalJobType jobType);
 
-  default String getTaskQueueFlagged(Geography geography, TemporalJobType jobType) {
-    return getTaskQueue(geography, jobType);
-  }
-
 }

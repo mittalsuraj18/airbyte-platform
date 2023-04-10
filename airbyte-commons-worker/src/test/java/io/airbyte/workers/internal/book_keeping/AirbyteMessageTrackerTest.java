@@ -40,7 +40,6 @@ class AirbyteMessageTrackerTest {
   private static final String INDUCED_EXCEPTION = "induced exception";
 
   private AirbyteMessageTracker messageTracker;
-  private SyncStatsTracker syncStatsTracker;
 
   @Mock
   private StateDeltaTracker mStateDeltaTracker;
@@ -52,7 +51,6 @@ class AirbyteMessageTrackerTest {
   void setup() {
     final StateMetricsTracker stateMetricsTracker = new StateMetricsTracker(10L * 1024L * 1024L);
     this.messageTracker = new AirbyteMessageTracker(mStateDeltaTracker, mStateAggregator, stateMetricsTracker, new EnvVariableFeatureFlags());
-    this.syncStatsTracker = this.messageTracker.getSyncStatsTracker();
   }
 
   @Test
@@ -67,9 +65,9 @@ class AirbyteMessageTrackerTest {
     messageTracker.acceptFromSource(s1);
     messageTracker.acceptFromSource(s2);
 
-    assertEquals(3, syncStatsTracker.getTotalRecordsEmitted());
-    assertEquals(3L * Jsons.getEstimatedByteSize(r1.getRecord().getData()), syncStatsTracker.getTotalBytesEmitted());
-    assertEquals(2, syncStatsTracker.getTotalSourceStateMessagesEmitted());
+    assertEquals(3, messageTracker.getTotalRecordsEmitted());
+    assertEquals(3L * Jsons.getEstimatedByteSize(r1.getRecord().getData()), messageTracker.getTotalBytesEmitted());
+    assertEquals(2, messageTracker.getTotalSourceStateMessagesEmitted());
   }
 
   @Test
@@ -121,7 +119,7 @@ class AirbyteMessageTrackerTest {
     expected.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r2.getRecord()), 2L);
     expected.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r3.getRecord()), 3L);
 
-    assertEquals(expected, syncStatsTracker.getStreamToEmittedRecords());
+    assertEquals(expected, messageTracker.getStreamToEmittedRecords());
   }
 
   @Test
@@ -146,7 +144,7 @@ class AirbyteMessageTrackerTest {
     expected.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r2.getRecord()), r2Bytes * 2);
     expected.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r3.getRecord()), r3Bytes * 3);
 
-    assertEquals(expected, syncStatsTracker.getStreamToEmittedBytes());
+    assertEquals(expected, messageTracker.getStreamToEmittedBytes());
   }
 
   @Test
@@ -168,29 +166,28 @@ class AirbyteMessageTrackerTest {
     messageTracker.acceptFromSource(r1);
     messageTracker.acceptFromSource(s2); // emit state 2
 
-    final Map<Short, StatsCounters> countsByIndex = new HashMap<>();
-    final Map<AirbyteStreamNameNamespacePair, Long> expectedRecords = new HashMap<>();
-    // TODO test bytes??
-    Mockito.when(mStateDeltaTracker.getStreamToCommittedStats()).thenReturn(countsByIndex);
+    final Map<Short, Long> countsByIndex = new HashMap<>();
+    final Map<AirbyteStreamNameNamespacePair, Long> expected = new HashMap<>();
+    Mockito.when(mStateDeltaTracker.getStreamToCommittedRecords()).thenReturn(countsByIndex);
 
-    countsByIndex.put((short) 0, new StatsCounters(11L, 1L));
-    countsByIndex.put((short) 1, new StatsCounters(22L, 2L));
+    countsByIndex.put((short) 0, 1L);
+    countsByIndex.put((short) 1, 2L);
     // result only contains counts up to state 1
-    expectedRecords.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r1.getRecord()), 1L);
-    expectedRecords.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r2.getRecord()), 2L);
-    assertEquals(expectedRecords, syncStatsTracker.getStreamToCommittedRecords().get());
+    expected.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r1.getRecord()), 1L);
+    expected.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r2.getRecord()), 2L);
+    assertEquals(expected, messageTracker.getStreamToCommittedRecords().get());
 
     countsByIndex.clear();
-    expectedRecords.clear();
+    expected.clear();
     messageTracker.acceptFromDestination(s2); // now commit state 2
-    countsByIndex.put((short) 0, new StatsCounters(33L, 3L));
-    countsByIndex.put((short) 1, new StatsCounters(33L, 3L));
-    countsByIndex.put((short) 2, new StatsCounters(11L, 1L));
+    countsByIndex.put((short) 0, 3L);
+    countsByIndex.put((short) 1, 3L);
+    countsByIndex.put((short) 2, 1L);
     // result updated with counts between state 1 and state 2
-    expectedRecords.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r1.getRecord()), 3L);
-    expectedRecords.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r2.getRecord()), 3L);
-    expectedRecords.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r3.getRecord()), 1L);
-    assertEquals(expectedRecords, syncStatsTracker.getStreamToCommittedRecords().get());
+    expected.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r1.getRecord()), 3L);
+    expected.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r2.getRecord()), 3L);
+    expected.put(AirbyteStreamNameNamespacePair.fromRecordMessage(r3.getRecord()), 1L);
+    assertEquals(expected, messageTracker.getStreamToCommittedRecords().get());
   }
 
   @Test
@@ -204,7 +201,7 @@ class AirbyteMessageTrackerTest {
     messageTracker.acceptFromSource(s1);
     messageTracker.acceptFromDestination(s1);
 
-    assertTrue(syncStatsTracker.getStreamToCommittedRecords().isEmpty());
+    assertTrue(messageTracker.getStreamToCommittedRecords().isEmpty());
   }
 
   @Test
@@ -218,7 +215,7 @@ class AirbyteMessageTrackerTest {
     messageTracker.acceptFromSource(s1);
     messageTracker.acceptFromDestination(s1);
 
-    assertTrue(syncStatsTracker.getStreamToCommittedRecords().isEmpty());
+    assertTrue(messageTracker.getStreamToCommittedRecords().isEmpty());
   }
 
   @Test
@@ -240,22 +237,21 @@ class AirbyteMessageTrackerTest {
     messageTracker.acceptFromSource(r1);
     messageTracker.acceptFromSource(s2); // emit state 2
 
-    final Map<Short, StatsCounters> countsByIndex = new HashMap<>();
-    Mockito.when(mStateDeltaTracker.getStreamToCommittedStats()).thenReturn(countsByIndex);
+    final Map<Short, Long> countsByIndex = new HashMap<>();
+    Mockito.when(mStateDeltaTracker.getStreamToCommittedRecords()).thenReturn(countsByIndex);
 
-    countsByIndex.put((short) 0, new StatsCounters(11L, 1L));
-    countsByIndex.put((short) 1, new StatsCounters(22L, 2L));
+    countsByIndex.put((short) 0, 1L);
+    countsByIndex.put((short) 1, 2L);
     // result only contains counts up to state 1
-    assertEquals(3L, syncStatsTracker.getTotalRecordsCommitted().get());
+    assertEquals(3L, messageTracker.getTotalRecordsCommitted().get());
 
     countsByIndex.clear();
     messageTracker.acceptFromDestination(s2); // now commit state 2
-    countsByIndex.put((short) 0, new StatsCounters(33L, 3L));
-    countsByIndex.put((short) 1, new StatsCounters(33L, 3L));
-    countsByIndex.put((short) 2, new StatsCounters(11L, 1L));
+    countsByIndex.put((short) 0, 3L);
+    countsByIndex.put((short) 1, 3L);
+    countsByIndex.put((short) 2, 1L);
     // result updated with counts between state 1 and state 2
-    assertEquals(7L, syncStatsTracker.getTotalRecordsCommitted().get());
-    assertEquals(77L, syncStatsTracker.getTotalBytesCommitted().get());
+    assertEquals(7L, messageTracker.getTotalRecordsCommitted().get());
   }
 
   @Test
@@ -269,7 +265,7 @@ class AirbyteMessageTrackerTest {
     messageTracker.acceptFromSource(s1);
     messageTracker.acceptFromDestination(s1);
 
-    assertTrue(syncStatsTracker.getTotalRecordsCommitted().isEmpty());
+    assertTrue(messageTracker.getTotalRecordsCommitted().isEmpty());
   }
 
   @Test
@@ -283,7 +279,7 @@ class AirbyteMessageTrackerTest {
     messageTracker.acceptFromSource(s1);
     messageTracker.acceptFromDestination(s1);
 
-    assertTrue(syncStatsTracker.getTotalRecordsCommitted().isEmpty());
+    assertTrue(messageTracker.getTotalRecordsCommitted().isEmpty());
   }
 
   @Test
@@ -350,13 +346,13 @@ class AirbyteMessageTrackerTest {
       messageTracker.acceptFromSource(est1);
       messageTracker.acceptFromSource(est2);
 
-      final var streamToEstBytes = syncStatsTracker.getStreamToEstimatedBytes();
+      final var streamToEstBytes = messageTracker.getStreamToEstimatedBytes();
       final var expStreamToEstBytes = Map.of(
           new AirbyteStreamNameNamespacePair(STREAM_1, NAMESPACE_1), 100L,
           new AirbyteStreamNameNamespacePair(STREAM_2, NAMESPACE_1), 200L);
       assertEquals(expStreamToEstBytes, streamToEstBytes);
 
-      final var streamToEstRecs = syncStatsTracker.getStreamToEstimatedRecords();
+      final var streamToEstRecs = messageTracker.getStreamToEstimatedRecords();
       final var expStreamToEstRecs = Map.of(
           new AirbyteStreamNameNamespacePair(STREAM_1, NAMESPACE_1), 10L,
           new AirbyteStreamNameNamespacePair(STREAM_2, NAMESPACE_1), 10L);
@@ -372,10 +368,10 @@ class AirbyteMessageTrackerTest {
       messageTracker.acceptFromSource(est1);
       messageTracker.acceptFromSource(est2);
 
-      final var totalEstBytes = syncStatsTracker.getTotalBytesEstimated();
+      final var totalEstBytes = messageTracker.getTotalBytesEstimated();
       assertEquals(300L, totalEstBytes);
 
-      final var totalEstRecs = syncStatsTracker.getTotalRecordsEstimated();
+      final var totalEstRecs = messageTracker.getTotalRecordsEstimated();
       assertEquals(20L, totalEstRecs);
     }
 
@@ -395,10 +391,10 @@ class AirbyteMessageTrackerTest {
       final var est = AirbyteMessageUtils.createSyncEstimateMessage(200L, 10L);
       messageTracker.acceptFromSource(est);
 
-      final var totalEstBytes = syncStatsTracker.getTotalBytesEstimated();
+      final var totalEstBytes = messageTracker.getTotalBytesEstimated();
       assertEquals(200L, totalEstBytes);
 
-      final var totalEstRecs = syncStatsTracker.getTotalRecordsEstimated();
+      final var totalEstRecs = messageTracker.getTotalRecordsEstimated();
       assertEquals(10L, totalEstRecs);
     }
 
@@ -408,9 +404,9 @@ class AirbyteMessageTrackerTest {
       final var est = AirbyteMessageUtils.createSyncEstimateMessage(200L, 10L);
       messageTracker.acceptFromSource(est);
 
-      final var streamToEstBytes = syncStatsTracker.getStreamToEstimatedBytes();
+      final var streamToEstBytes = messageTracker.getStreamToEstimatedBytes();
       assertTrue(streamToEstBytes.isEmpty());
-      final var streamToEstRecs = syncStatsTracker.getStreamToEstimatedRecords();
+      final var streamToEstRecs = messageTracker.getStreamToEstimatedRecords();
       assertTrue(streamToEstRecs.isEmpty());
     }
 

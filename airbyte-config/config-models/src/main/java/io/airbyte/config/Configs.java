@@ -758,12 +758,9 @@ public interface Configs {
 
   String getFieldSelectionWorkspaces();
 
-  /**
-   * Connector Builder configs.
-   */
-  String getCdkPython();
+  String getStrictComparisonNormalizationWorkspaces();
 
-  String getCdkEntrypoint();
+  String getStrictComparisonNormalizationTag();
 
   /**
    * Tracking strategy.

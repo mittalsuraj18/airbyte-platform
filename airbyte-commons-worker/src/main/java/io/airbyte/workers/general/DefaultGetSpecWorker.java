@@ -21,6 +21,7 @@ import io.airbyte.protocol.models.ConnectorSpecification;
 import io.airbyte.workers.WorkerUtils;
 import io.airbyte.workers.exception.WorkerException;
 import io.airbyte.workers.internal.AirbyteStreamFactory;
+import io.airbyte.workers.internal.DefaultAirbyteStreamFactory;
 import io.airbyte.workers.process.IntegrationLauncher;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -45,6 +46,10 @@ public class DefaultGetSpecWorker implements GetSpecWorker {
                               final AirbyteStreamFactory streamFactory) {
     this.integrationLauncher = integrationLauncher;
     this.streamFactory = streamFactory;
+  }
+
+  public DefaultGetSpecWorker(final IntegrationLauncher integrationLauncher) {
+    this(integrationLauncher, new DefaultAirbyteStreamFactory());
   }
 
   @Trace(operationName = WORKER_OPERATION_NAME)

@@ -67,7 +67,7 @@ export const ConnectionTransformationPage: React.FC = () => {
         {supportsCloudDbtIntegration && <DbtCloudTransformationsCard connection={connection} />}
         {noSupportedTransformations && (
           <Card className={styles.customCard}>
-            <Text size="lg" align="center">
+            <Text size="lg" centered>
               <FormattedMessage id="connectionForm.operations.notSupported" />
             </Text>
           </Card>

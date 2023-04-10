@@ -17,9 +17,7 @@ export class SourceDefinitionService extends AirbyteRequestService {
   }
 
   public list(workspaceId: string) {
-    return listSourceDefinitionsForWorkspace({ workspaceId }, this.requestOptions).then(({ sourceDefinitions }) => ({
-      sourceDefinitions: sourceDefinitions.sort((a, b) => a.name.localeCompare(b.name)),
-    }));
+    return listSourceDefinitionsForWorkspace({ workspaceId }, this.requestOptions);
   }
 
   public listLatest() {

@@ -89,7 +89,6 @@ public class TrelloOAuthFlow extends BaseOAuthFlow {
 
     final OAuthAuthorizeTemporaryTokenUrl oAuthAuthorizeTemporaryTokenUrl = new OAuthAuthorizeTemporaryTokenUrl(AUTHENTICATE_URL);
     oAuthAuthorizeTemporaryTokenUrl.temporaryToken = temporaryTokenResponse.token;
-    oAuthAuthorizeTemporaryTokenUrl.set("expiration", "never");
     signer.tokenSharedSecret = temporaryTokenResponse.tokenSecret;
     return oAuthAuthorizeTemporaryTokenUrl.build();
   }
@@ -113,7 +112,7 @@ public class TrelloOAuthFlow extends BaseOAuthFlow {
                                                  final JsonNode inputOAuthConfiguration,
                                                  final OAuthConfigSpecification oauthConfigSpecification)
       throws IOException, ConfigNotFoundException, JsonValidationException {
-    final JsonNode oAuthParamConfig = getSourceOAuthParamConfig(workspaceId, sourceDefinitionId);
+    final JsonNode oAuthParamConfig = getDestinationOAuthParamConfig(workspaceId, sourceDefinitionId);
     return formatOAuthOutput(oAuthParamConfig, internalCompleteOAuth(oAuthParamConfig, queryParams), oauthConfigSpecification);
   }
 

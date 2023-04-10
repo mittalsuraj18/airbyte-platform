@@ -158,8 +158,6 @@ class ConnectionsHandlerTest {
         .withResourceRequirements(ConnectionHelpers.TESTING_RESOURCE_REQUIREMENTS)
         .withSourceCatalogId(UUID.randomUUID())
         .withGeography(Geography.AUTO)
-        .withNotifySchemaChanges(false)
-        .withNotifySchemaChangesByEmail(true)
         .withBreakingChange(false);
     standardSyncDeleted = new StandardSync()
         .withConnectionId(connectionId)
@@ -241,9 +239,7 @@ class ConnectionsHandlerTest {
                 .memoryRequest(standardSync.getResourceRequirements().getMemoryRequest())
                 .memoryLimit(standardSync.getResourceRequirements().getMemoryLimit()))
             .sourceCatalogId(standardSync.getSourceCatalogId())
-            .geography(ApiPojoConverters.toApiGeography(standardSync.getGeography()))
-            .notifySchemaChanges(standardSync.getNotifySchemaChanges())
-            .notifySchemaChangesByEmail(standardSync.getNotifySchemaChangesByEmail());
+            .geography(ApiPojoConverters.toApiGeography(standardSync.getGeography()));
       }
 
       @Test
@@ -267,15 +263,14 @@ class ConnectionsHandlerTest {
 
         assertEquals(expectedConnectionRead, actualConnectionRead);
 
-        verify(configRepository).writeStandardSync(standardSync.withNotifySchemaChanges(null).withNotifySchemaChangesByEmail(null));
+        verify(configRepository).writeStandardSync(standardSync);
 
         // Use new schedule schema, verify that we get the same results.
         connectionCreate
             .schedule(null)
             .scheduleType(ConnectionScheduleType.BASIC)
             .scheduleData(ConnectionHelpers.generateBasicConnectionScheduleData());
-        assertEquals(expectedConnectionRead.notifySchemaChanges(null).notifySchemaChangesByEmail(null),
-            connectionsHandler.createConnection(connectionCreate));
+        assertEquals(expectedConnectionRead, connectionsHandler.createConnection(connectionCreate));
       }
 
       @Test
@@ -302,7 +297,7 @@ class ConnectionsHandlerTest {
         final ConnectionRead actualConnectionRead = connectionsHandler.createConnection(connectionCreate);
 
         assertEquals(expectedConnectionRead, actualConnectionRead);
-        verify(configRepository).writeStandardSync(standardSync.withNotifySchemaChanges(null).withNotifySchemaChangesByEmail(null));
+        verify(configRepository).writeStandardSync(standardSync);
       }
 
       @Test
@@ -327,7 +322,7 @@ class ConnectionsHandlerTest {
 
         standardSync.withFieldSelectionData(new FieldSelectionData().withAdditionalProperty("null/users-data0", true));
 
-        verify(configRepository).writeStandardSync(standardSync.withNotifySchemaChanges(null).withNotifySchemaChangesByEmail(null));
+        verify(configRepository).writeStandardSync(standardSync);
       }
 
       @Test
@@ -356,7 +351,7 @@ class ConnectionsHandlerTest {
             .withFieldSelectionData(new FieldSelectionData().withAdditionalProperty("null/users-data0", true))
             .getCatalog().getStreams().get(0).withSyncMode(io.airbyte.protocol.models.SyncMode.FULL_REFRESH).withCursorField(null);
 
-        verify(configRepository).writeStandardSync(standardSync.withNotifySchemaChanges(null).withNotifySchemaChangesByEmail(null));
+        verify(configRepository).writeStandardSync(standardSync);
       }
 
       @Test
@@ -752,10 +747,7 @@ class ConnectionsHandlerTest {
             standardSync.getDestinationId(),
             standardSync.getOperationIds(),
             newSourceCatalogId,
-            ApiPojoConverters.toApiGeography(standardSync.getGeography()),
-            false,
-            standardSync.getNotifySchemaChanges(),
-            standardSync.getNotifySchemaChangesByEmail())
+            ApiPojoConverters.toApiGeography(standardSync.getGeography()), false)
             .status(ConnectionStatus.INACTIVE)
             .scheduleType(ConnectionScheduleType.MANUAL)
             .scheduleData(null)
@@ -850,9 +842,7 @@ class ConnectionsHandlerTest {
           .withManual(true)
           .withResourceRequirements(ConnectionHelpers.TESTING_RESOURCE_REQUIREMENTS)
           .withGeography(Geography.US)
-          .withBreakingChange(false)
-          .withNotifySchemaChanges(false)
-          .withNotifySchemaChangesByEmail(true);
+          .withBreakingChange(false);
       final ConnectionRead connectionRead2 = ConnectionHelpers.connectionReadFromStandardSync(standardSync2);
       final StandardSourceDefinition sourceDefinition = new StandardSourceDefinition()
           .withName(SOURCE_TEST)

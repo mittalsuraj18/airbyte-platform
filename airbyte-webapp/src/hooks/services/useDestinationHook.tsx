@@ -9,7 +9,6 @@ import { isDefined } from "utils/common";
 
 import { useAnalyticsService } from "./Analytics";
 import { useRemoveConnectionsFromList } from "./useConnectionHook";
-import { useRequestErrorHandler } from "./useRequestErrorHandler";
 import { useCurrentWorkspace } from "./useWorkspace";
 import { useConfig } from "../../config";
 import { DestinationRead, WebBackendConnectionListItem } from "../../core/request/AirbyteClient";
@@ -74,7 +73,6 @@ const useCreateDestination = () => {
   const service = useDestinationService();
   const queryClient = useQueryClient();
   const workspace = useCurrentWorkspace();
-  const onError = useRequestErrorHandler("destinations.createError");
 
   return useMutation(
     async (createDestinationPayload: { values: ValuesProps; destinationConnector?: ConnectorProps }) => {
@@ -97,7 +95,6 @@ const useCreateDestination = () => {
           destinations: [data, ...(lst?.destinations ?? [])],
         }));
       },
-      onError,
     }
   );
 };
@@ -107,7 +104,6 @@ const useDeleteDestination = () => {
   const queryClient = useQueryClient();
   const analyticsService = useAnalyticsService();
   const removeConnectionsFromList = useRemoveConnectionsFromList();
-  const onError = useRequestErrorHandler("destinations.deleteError");
 
   return useMutation(
     (payload: { destination: DestinationRead; connectionsWithDestination: WebBackendConnectionListItem[] }) =>
@@ -133,7 +129,6 @@ const useDeleteDestination = () => {
         const connectionIds = ctx.connectionsWithDestination.map((item) => item.connectionId);
         removeConnectionsFromList(connectionIds);
       },
-      onError,
     }
   );
 };
@@ -141,7 +136,6 @@ const useDeleteDestination = () => {
 const useUpdateDestination = () => {
   const service = useDestinationService();
   const queryClient = useQueryClient();
-  const onError = useRequestErrorHandler("destinations.updateError");
 
   return useMutation(
     (updateDestinationPayload: { values: ValuesProps; destinationId: string }) => {
@@ -155,7 +149,6 @@ const useUpdateDestination = () => {
       onSuccess: (data) => {
         queryClient.setQueryData(destinationsKeys.detail(data.destinationId), data);
       },
-      onError,
     }
   );
 };

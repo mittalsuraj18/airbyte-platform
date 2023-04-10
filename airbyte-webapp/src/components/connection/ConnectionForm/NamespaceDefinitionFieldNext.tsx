@@ -5,14 +5,13 @@ import { FormattedMessage } from "react-intl";
 import { Button } from "components/ui/Button";
 import { FlexContainer } from "components/ui/Flex";
 import { Text } from "components/ui/Text";
-import { TextInputContainer } from "components/ui/TextInputContainer";
 
 import { NamespaceDefinitionType } from "core/request/AirbyteClient";
 import { useConnectionFormService } from "hooks/services/ConnectionForm/ConnectionFormService";
 import { useModalService } from "hooks/services/Modal";
 
 import { FormikConnectionFormValues } from "./formConfig";
-import { FormFieldLayout } from "./FormFieldLayout";
+import { FormFieldWrapper } from "./FormFieldWrapper";
 import { namespaceDefinitionOptions } from "./types";
 import { ControlLabels } from "../../LabeledControl";
 import {
@@ -69,28 +68,25 @@ export const NamespaceDefinitionFieldNext = () => {
   return (
     <Field name="namespaceDefinition">
       {({ field }: FieldProps<NamespaceDefinitionType>) => (
-        <FormFieldLayout>
+        <FormFieldWrapper>
           <ControlLabels
             label={<FormattedMessage id="connectionForm.namespaceDefinition.title" />}
             infoTooltipContent={<FormattedMessage id="connectionForm.namespaceDefinition.subtitle" />}
           />
-          <FlexContainer alignItems="center" justifyContent="space-between" gap="sm">
-            <TextInputContainer disabled>
-              <Text>
-                <FormattedMessage id={`connectionForm.${namespaceDefinitionOptions[field.value]}`} />
-              </Text>
-            </TextInputContainer>
+          <FlexContainer alignItems="center" justifyContent="space-between">
+            <Text color="grey">
+              <FormattedMessage id={`connectionForm.${namespaceDefinitionOptions[field.value]}`} />
+            </Text>
             <Button
               type="button"
               variant="secondary"
               disabled={mode === "readonly"}
               onClick={openDestinationNamespaceModal}
-              data-testid="destination-namespace-edit-button"
             >
               <FormattedMessage id="form.edit" />
             </Button>
           </FlexContainer>
-        </FormFieldLayout>
+        </FormFieldWrapper>
       )}
     </Field>
   );

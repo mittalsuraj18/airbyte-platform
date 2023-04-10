@@ -106,7 +106,7 @@ class SecretsRepositoryWriterTest {
 
   @BeforeEach
   void setup() {
-    configRepository = mock(ConfigRepository.class);
+    configRepository = spy(mock(ConfigRepository.class));
     longLivedSecretPersistence = new MemorySecretPersistence();
     ephemeralSecretPersistence = new MemorySecretPersistence();
     jsonSchemaValidator = mock(JsonSchemaValidator.class);

@@ -1,4 +1,4 @@
-import { cloudApiCall } from "core/api";
+import { apiOverride } from "core/request/apiOverride";
 
 /**
  * Get the available dbt Cloud jobs associated with the given workspace config.
@@ -33,9 +33,9 @@ export interface DbtCloudJobInfo {
  */
 export const webBackendGetAvailableDbtJobsForWorkspace = (
   workspaceGetDbtJobsRequest: WorkspaceGetDbtJobsRequest,
-  options: SecondParameter<typeof cloudApiCall>
+  options?: SecondParameter<typeof apiOverride>
 ) => {
-  return cloudApiCall<WorkspaceGetDbtJobsResponse>(
+  return apiOverride<WorkspaceGetDbtJobsResponse>(
     {
       url: `/v1/web_backend/cloud_workspaces/get_available_dbt_jobs`,
       method: "post",

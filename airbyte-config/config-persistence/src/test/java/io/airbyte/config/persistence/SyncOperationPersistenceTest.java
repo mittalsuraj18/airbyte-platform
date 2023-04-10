@@ -70,7 +70,7 @@ class SyncOperationPersistenceTest extends BaseConfigDatabaseTest {
   void beforeEach() throws Exception {
     truncateAllTables();
 
-    configRepository = new ConfigRepository(database, MockData.MAX_SECONDS_BETWEEN_MESSAGE_SUPPLIER);
+    configRepository = new ConfigRepository(database);
     createWorkspace();
 
     for (final StandardSyncOperation op : OPS) {

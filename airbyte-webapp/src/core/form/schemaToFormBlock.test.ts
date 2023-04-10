@@ -32,7 +32,7 @@ it("should reformat jsonSchema to internal widget representation", () => {
     _type: "formGroup",
     path: "key",
     fieldKey: "key",
-    isRequired: true,
+    isRequired: false,
     properties: [
       {
         _type: "formItem",
@@ -281,7 +281,7 @@ it("should reformat jsonSchema to internal widget representation when has oneOf"
                 type: "string",
               },
             ],
-            isRequired: true,
+            isRequired: false,
           },
           {
             title: "oauth",
@@ -312,7 +312,7 @@ it("should reformat jsonSchema to internal widget representation when has oneOf"
                 type: "string",
               },
             ],
-            isRequired: true,
+            isRequired: false,
           },
         ],
         isRequired: true,

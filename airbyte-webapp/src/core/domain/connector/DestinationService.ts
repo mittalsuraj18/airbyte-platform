@@ -47,10 +47,13 @@ export class DestinationService extends AirbyteRequestService {
       );
     }
 
-    if (!result.jobInfo?.succeeded) {
-      throw new LogsRequestError(result.jobInfo, "Failed to run connection tests.");
-    } else if (result.status === CheckConnectionReadStatus.failed) {
-      throw new LogsRequestError(result.jobInfo, result.message);
+    if (result.status === CheckConnectionReadStatus.failed) {
+      const jobInfo = {
+        ...result.jobInfo,
+        status: result.status,
+      };
+
+      throw new LogsRequestError(jobInfo, result.message);
     }
 
     return result;

@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import { FlexContainer, FlexItem } from "components/ui/Flex";
-
 interface IProps {
   error?: boolean;
   nextLine?: boolean;
@@ -11,7 +9,6 @@ interface IProps {
   className?: string;
   onClick?: (data: unknown) => void;
   htmlFor?: string;
-  endBlock?: React.ReactNode;
 }
 
 const Content = styled.label`
@@ -44,18 +41,13 @@ const MessageText = styled.span<Pick<IProps, "error" | "success">>`
 
 const Label: React.FC<React.PropsWithChildren<IProps>> = (props) => (
   <Content className={props.className} onClick={props.onClick} htmlFor={props.htmlFor}>
-    <FlexContainer gap="sm" direction={props.children && props.nextLine ? "column" : "row"}>
-      {props.children}
-      <FlexItem grow>
-        {props.message && (
-          <span>
-            {props.children && !props.nextLine ? " - " : null}
-            <MessageText error={props.error}>{props.message}</MessageText>
-          </span>
-        )}
-      </FlexItem>
-      {props.endBlock}
-    </FlexContainer>
+    {props.children}
+    {props.message && (
+      <span>
+        {props.children ? props.nextLine ? <br /> : " - " : null}
+        <MessageText error={props.error}>{props.message}</MessageText>
+      </span>
+    )}
   </Content>
 );
 

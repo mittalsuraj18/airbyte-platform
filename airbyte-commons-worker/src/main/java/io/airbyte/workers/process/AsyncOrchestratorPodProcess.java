@@ -16,13 +16,11 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.SecretVolumeSourceBuilder;
-import io.fabric8.kubernetes.api.model.StatusDetails;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.core.util.StringUtils;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -181,13 +179,13 @@ public class AsyncOrchestratorPodProcess implements KubePod {
 
   @Override
   public void destroy() {
-    final List<StatusDetails> destroyed = kubernetesClient.pods()
+    final var wasDestroyed = kubernetesClient.pods()
         .inNamespace(getInfo().namespace())
         .withName(getInfo().name())
         .withPropagationPolicy(DeletionPropagation.FOREGROUND)
         .delete();
 
-    if (CollectionUtils.isNotEmpty(destroyed)) {
+    if (wasDestroyed) {
       log.info("Deleted pod {} in namespace {}", getInfo().name(), getInfo().namespace());
     } else {
       log.warn("Wasn't able to delete pod {} from namespace {}", getInfo().name(), getInfo().namespace());

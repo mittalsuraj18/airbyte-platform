@@ -6,12 +6,10 @@ package io.airbyte.commons.server.converters;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.airbyte.commons.json.Jsons;
-import io.airbyte.config.ActorDefinitionVersion;
 import io.airbyte.config.DestinationConnection;
 import io.airbyte.config.SourceConnection;
 import io.airbyte.config.StandardDestinationDefinition;
 import io.airbyte.config.StandardSourceDefinition;
-import io.airbyte.config.persistence.ActorDefinitionVersionHelper;
 import io.airbyte.config.persistence.ConfigNotFoundException;
 import io.airbyte.config.persistence.ConfigRepository;
 import io.airbyte.config.persistence.SecretsRepositoryReader;
@@ -32,24 +30,19 @@ public class ConfigurationUpdate {
   private final ConfigRepository configRepository;
   private final SecretsRepositoryReader secretsRepositoryReader;
   private final JsonSecretsProcessor secretsProcessor;
-  private final ActorDefinitionVersionHelper actorDefinitionVersionHelper;
 
-  public ConfigurationUpdate(final ConfigRepository configRepository,
-                             final SecretsRepositoryReader secretsRepositoryReader,
-                             final ActorDefinitionVersionHelper actorDefinitionVersionHelper) {
+  public ConfigurationUpdate(final ConfigRepository configRepository, final SecretsRepositoryReader secretsRepositoryReader) {
     this(configRepository, secretsRepositoryReader, JsonSecretsProcessor.builder()
         .copySecrets(true)
-        .build(), actorDefinitionVersionHelper);
+        .build());
   }
 
   public ConfigurationUpdate(final ConfigRepository configRepository,
                              final SecretsRepositoryReader secretsRepositoryReader,
-                             final JsonSecretsProcessor secretsProcessor,
-                             final ActorDefinitionVersionHelper actorDefinitionVersionHelper) {
+                             final JsonSecretsProcessor secretsProcessor) {
     this.configRepository = configRepository;
     this.secretsRepositoryReader = secretsRepositoryReader;
     this.secretsProcessor = secretsProcessor;
-    this.actorDefinitionVersionHelper = actorDefinitionVersionHelper;
   }
 
   /**
@@ -70,9 +63,7 @@ public class ConfigurationUpdate {
     persistedSource.setName(sourceName);
     // get spec
     final StandardSourceDefinition sourceDefinition = configRepository.getStandardSourceDefinition(persistedSource.getSourceDefinitionId());
-    final ActorDefinitionVersion sourceVersion =
-        actorDefinitionVersionHelper.getSourceVersion(sourceDefinition, persistedSource.getWorkspaceId(), sourceId);
-    final ConnectorSpecification spec = sourceVersion.getSpec();
+    final ConnectorSpecification spec = sourceDefinition.getSpec();
     // copy any necessary secrets from the current source to the incoming updated source
     final JsonNode updatedConfiguration = secretsProcessor.copySecrets(
         persistedSource.getConfiguration(),
@@ -101,9 +92,7 @@ public class ConfigurationUpdate {
     // get spec
     final StandardDestinationDefinition destinationDefinition = configRepository
         .getStandardDestinationDefinition(persistedDestination.getDestinationDefinitionId());
-    final ActorDefinitionVersion destinationVersion =
-        actorDefinitionVersionHelper.getDestinationVersion(destinationDefinition, persistedDestination.getWorkspaceId(), destinationId);
-    final ConnectorSpecification spec = destinationVersion.getSpec();
+    final ConnectorSpecification spec = destinationDefinition.getSpec();
     // copy any necessary secrets from the current destination to the incoming updated destination
     final JsonNode updatedConfiguration = secretsProcessor.copySecrets(
         persistedDestination.getConfiguration(),

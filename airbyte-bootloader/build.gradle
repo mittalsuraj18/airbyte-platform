@@ -2,20 +2,21 @@ plugins {
     id 'application'
 }
 
-configurations.all {
-    resolutionStrategy {
-        force libs.flyway.core, libs.jooq
-    }
-}
-
 dependencies {
     annotationProcessor platform(libs.micronaut.bom)
     annotationProcessor libs.bundles.micronaut.annotation.processor
 
     implementation platform(libs.micronaut.bom)
     implementation libs.bundles.micronaut
-    implementation libs.flyway.core
-    implementation libs.jooq
+
+    // Ensure that the versions defined in deps.toml are used
+    // instead of versions from transitive dependencies
+    implementation (libs.flyway.core) {
+        force = true
+    }
+    implementation (libs.jooq) {
+        force = true
+    }
 
     implementation project(':airbyte-commons')
     implementation project(':airbyte-config:init')
@@ -23,7 +24,6 @@ dependencies {
     implementation project(':airbyte-config:config-persistence')
     implementation project(':airbyte-db:db-lib')
     implementation project(":airbyte-json-validation")
-    implementation project(":airbyte-featureflag")
     implementation libs.airbyte.protocol
     implementation project(':airbyte-persistence:job-persistence')
 
@@ -36,9 +36,11 @@ dependencies {
     testImplementation libs.platform.testcontainers.postgresql
 }
 
+mainClassName = 'io.airbyte.bootloader.Application'
+
 application {
     applicationName = project.name
-    mainClass = 'io.airbyte.bootloader.Application'
+    mainClass = mainClassName
     applicationDefaultJvmArgs = ['-XX:+ExitOnOutOfMemoryError', '-XX:MaxRAMPercentage=75.0']
 }
 

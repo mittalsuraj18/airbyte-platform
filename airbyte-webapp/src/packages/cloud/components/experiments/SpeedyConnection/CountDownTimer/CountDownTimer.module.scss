@@ -1,6 +1,14 @@
-@use "scss/variables";
-@use "scss/colors";
+@use "../../../../../../../src/scss/variables";
+@use "../../../../../../../src/scss/colors";
 
-.countDownTimer {
+.countDownTimerContainer {
+  display: flex;
+  gap: variables.$spacing-md;
+}
+
+.countDownTimerItem {
   color: colors.$blue-100;
+  font-size: 16px;
+  line-height: 28px;
+  font-weight: 700;
 }

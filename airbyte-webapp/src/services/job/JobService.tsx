@@ -30,15 +30,14 @@ function useGetJobService() {
   return useInitService(() => new JobsService(config.apiUrl, middlewares), [config.apiUrl, middlewares]);
 }
 
-export const useListJobs = (listParams: JobListRequestBody, keepPreviousData = true) => {
+export const useListJobs = (listParams: JobListRequestBody) => {
   const service = useGetJobService();
   const result = useQuery(
     jobsKeys.list(listParams.configId, listParams.includingJobId, listParams.pagination),
     () => service.list(listParams),
     {
-      // 2.5 second refresh
-      refetchInterval: 2500,
-      keepPreviousData,
+      refetchInterval: 2500, // every 2,5 seconds,
+      keepPreviousData: true,
       suspense: true,
     }
   );
@@ -88,5 +87,5 @@ export const useCancelJob = () => {
     onSuccess: (data) => {
       queryClient.setQueryData(jobsKeys.detail(data.job.id), data);
     },
-  });
+  }).mutateAsync;
 };

@@ -4,5 +4,4 @@ export const enum ConnectionRoutePaths {
   Transformation = "transformation",
   Replication = "replication",
   Settings = "settings",
-  JobHistory = "job-history",
 }

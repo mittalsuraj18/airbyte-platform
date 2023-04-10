@@ -4,7 +4,7 @@
 
 from abc import ABC
 from typing import Any, List, Mapping, Optional, Union
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 import requests
@@ -52,7 +52,7 @@ class MockConcreteStream(HttpStream, ABC):
 
 
 MANIFEST = {
-    "version": "0.29.0",
+    "version": "0.1.0",
     "type": "DeclarativeSource",
     "definitions": {
         "selector": {"extractor": {"field_path": ["items"], "type": "DpathExtractor"}, "type": "RecordSelector"},
@@ -108,7 +108,7 @@ MANIFEST = {
 }
 
 MANIFEST_WITH_REFERENCES = {
-    "version": "0.29.0",
+    "version": "0.1.0",
     "type": "DeclarativeSource",
     "definitions": {
         "selector": {"type": "RecordSelector", "extractor": {"type": "DpathExtractor", "field_path": []}},
@@ -143,7 +143,7 @@ MANIFEST_WITH_REFERENCES = {
 }
 
 MANIFEST_WITH_PAGINATOR = {
-    "version": "0.29.0",
+    "version": "0.1.0",
     "type": "DeclarativeSource",
     "definitions": {},
     "streams": [
@@ -256,16 +256,13 @@ def test_read_streams():
         assert actual_messages[i] == expected_message
 
 
-@patch("connector_builder.impl.low_code_cdk_adapter.ErrorFormatter")
-def test_read_streams_with_error(error_formatter):
-    stack_trace = "a stack trace"
-    error_formatter.get_stacktrace_as_string.return_value = stack_trace
+def test_read_streams_with_error():
     expected_messages = [
         AirbyteMessage(
             type=Type.LOG, log=AirbyteLogMessage(level=Level.INFO, message="request:{'url': 'https://demonslayers.com/v1/hashiras'}")
         ),
         AirbyteMessage(type=Type.LOG, log=AirbyteLogMessage(level=Level.INFO, message="response:{'status': 401}")),
-        AirbyteMessage(type=Type.LOG, log=AirbyteLogMessage(level=Level.ERROR, message=f"error_message - {stack_trace}")),
+        AirbyteMessage(type=Type.LOG, log=AirbyteLogMessage(level=Level.ERROR, message="error_message")),
     ]
     mock_source = MagicMock()
 
@@ -286,7 +283,7 @@ def test_read_streams_with_error(error_formatter):
 
 def test_read_streams_invalid_reference():
     invalid_reference_manifest = {
-        "version": "0.29.0",
+        "version": "0.1.0",
         "type": "DeclarativeSource",
         "definitions": {
             "selector": {"type": "RecordSelector", "extractor": {"type": "DpathExtractor", "field_path": []}},

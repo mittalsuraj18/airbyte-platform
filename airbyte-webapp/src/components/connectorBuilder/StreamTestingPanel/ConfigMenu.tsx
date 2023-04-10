@@ -1,12 +1,12 @@
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMemo } from "react";
 import { FormattedMessage } from "react-intl";
 import { useLocalStorage } from "react-use";
 
 import { Button } from "components/ui/Button";
+import { Callout } from "components/ui/Callout";
 import { FlexContainer, FlexItem } from "components/ui/Flex";
-import { Message } from "components/ui/Message";
 import { Modal, ModalBody } from "components/ui/Modal";
 import { NumberBadge } from "components/ui/NumberBadge";
 import { Tooltip } from "components/ui/Tooltip";
@@ -29,6 +29,7 @@ interface ConfigMenuProps {
 
 export const ConfigMenu: React.FC<ConfigMenuProps> = ({ className, testInputJsonErrors, isOpen, setIsOpen }) => {
   const { jsonManifest, editorView, setEditorView } = useConnectorBuilderFormState();
+
   const { testInputJson, setTestInputJson } = useConnectorBuilderTestState();
 
   const [showInputsWarning, setShowInputsWarning] = useLocalStorage<boolean>("connectorBuilderInputsWarning", true);
@@ -91,16 +92,22 @@ export const ConfigMenu: React.FC<ConfigMenuProps> = ({ className, testInputJson
         >
           <ModalBody>
             <ConfigMenuErrorBoundaryComponent currentView={editorView} closeAndSwitchToYaml={switchToYaml}>
-              <FlexContainer direction="column">
+              <>
                 {showInputsWarning && (
-                  <Message
-                    className={styles.warningBox}
-                    type="warning"
-                    onClose={() => {
-                      setShowInputsWarning(false);
-                    }}
-                    text={<FormattedMessage id="connectorBuilder.inputsFormWarning" />}
-                  />
+                  <Callout className={styles.warningBox}>
+                    <div className={styles.warningBoxContainer}>
+                      <div>
+                        <FormattedMessage id="connectorBuilder.inputsFormWarning" />
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setShowInputsWarning(false);
+                        }}
+                        variant="clear"
+                        icon={<FontAwesomeIcon icon={faClose} />}
+                      />
+                    </div>
+                  </Callout>
                 )}
                 <ConnectorForm
                   formType="source"
@@ -111,7 +118,6 @@ export const ConfigMenu: React.FC<ConfigMenuProps> = ({ className, testInputJson
                     setTestInputJson(values.connectionConfiguration as StreamReadRequestBodyConfig);
                     setIsOpen(false);
                   }}
-                  isEditMode
                   renderFooter={({ dirty, isSubmitting, resetConnectorForm }) => (
                     <div className={styles.inputFormModalFooter}>
                       <FlexContainer>
@@ -119,7 +125,7 @@ export const ConfigMenu: React.FC<ConfigMenuProps> = ({ className, testInputJson
                           <Button
                             onClick={() => {
                               resetConnectorForm();
-                              setTestInputJson(undefined);
+                              setTestInputJson({});
                             }}
                             type="button"
                             variant="danger"
@@ -137,7 +143,7 @@ export const ConfigMenu: React.FC<ConfigMenuProps> = ({ className, testInputJson
                     </div>
                   )}
                 />
-              </FlexContainer>
+              </>
             </ConfigMenuErrorBoundaryComponent>
           </ModalBody>
         </Modal>

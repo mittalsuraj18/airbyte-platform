@@ -6,8 +6,9 @@ export const CountDownTimer: React.FC<{ expiredOfferDate: string }> = ({ expired
   const [hours, minutes] = useCountdown(expiredOfferDate);
 
   return (
-    <Text as="span" bold className={styles.countDownTimer}>
-      {hours.toString().padStart(2, "0")}h {minutes.toString().padStart(2, "0")}m
-    </Text>
+    <div className={styles.countDownTimerContainer}>
+      <Text className={styles.countDownTimerItem}>{hours.toString().padStart(2, "0")}h</Text>
+      <Text className={styles.countDownTimerItem}>{minutes.toString().padStart(2, "0")}m</Text>
+    </div>
   );
 };

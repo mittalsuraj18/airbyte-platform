@@ -3,55 +3,32 @@ import { useMutation } from "react-query";
 
 import { useConfig } from "config";
 import { ConnectionConfiguration } from "core/domain/connection";
+import { Connector } from "core/domain/connector";
 import { DestinationService } from "core/domain/connector/DestinationService";
 import { SourceService } from "core/domain/connector/SourceService";
 import { useGetOutOfDateConnectorsCount } from "services/connector/ConnectorDefinitions";
 import {
   useDestinationDefinitionList,
-  useLatestDestinationDefinitionList,
   useUpdateDestinationDefinition,
 } from "services/connector/DestinationDefinitionService";
-import {
-  useLatestSourceDefinitionList,
-  useSourceDefinitionList,
-  useUpdateSourceDefinition,
-} from "services/connector/SourceDefinitionService";
+import { useSourceDefinitionList, useUpdateSourceDefinition } from "services/connector/SourceDefinitionService";
 import { useDefaultRequestMiddlewares } from "services/useDefaultRequestMiddlewares";
 import { useInitService } from "services/useInitService";
-import { useCurrentWorkspaceId } from "services/workspaces/WorkspacesService";
 
 import { CheckConnectionRead } from "../../core/request/AirbyteClient";
 
-export const useUpdateAllConnectors = (connectorType: "sources" | "destinations") => {
-  const workspaceId = useCurrentWorkspaceId();
-  const { updateAllSourceVersions } = useUpdateSourceDefinitions();
-  const { updateAllDestinationVersions } = useUpdateDestinationDefinitions();
-  return useMutation(["updateAllConnectors", workspaceId], async () =>
-    connectorType === "sources" ? updateAllSourceVersions() : updateAllDestinationVersions()
-  );
-};
-
 export const useUpdateSourceDefinitions = () => {
   const { sourceDefinitions } = useSourceDefinitionList();
-  const { sourceDefinitions: latestSourceDefinitions } = useLatestSourceDefinitionList();
   const { mutateAsync: updateSourceDefinition } = useUpdateSourceDefinition();
 
-  const newSourceDefinitions = useMemo(
-    () =>
-      latestSourceDefinitions.filter(
-        (latestDefinition) =>
-          sourceDefinitions.find((definition) => definition.sourceDefinitionId === latestDefinition.sourceDefinitionId)
-            ?.dockerImageTag !== latestDefinition.dockerImageTag
-      ),
-    [sourceDefinitions, latestSourceDefinitions]
-  );
+  const newSourceDefinitions = useMemo(() => sourceDefinitions.filter(Connector.hasNewerVersion), [sourceDefinitions]);
 
   const updateAllSourceVersions = async () => {
     await Promise.all(
       newSourceDefinitions?.map((item) =>
         updateSourceDefinition({
           sourceDefinitionId: item.sourceDefinitionId,
-          dockerImageTag: item.dockerImageTag,
+          dockerImageTag: item.latestDockerImageTag ?? "",
         })
       )
     );
@@ -62,18 +39,11 @@ export const useUpdateSourceDefinitions = () => {
 
 export const useUpdateDestinationDefinitions = () => {
   const { destinationDefinitions } = useDestinationDefinitionList();
-  const { destinationDefinitions: latestDestinationDefinitions } = useLatestDestinationDefinitionList();
   const { mutateAsync: updateDestinationDefinition } = useUpdateDestinationDefinition();
 
   const newDestinationDefinitions = useMemo(
-    () =>
-      latestDestinationDefinitions.filter(
-        (latestDefinition) =>
-          destinationDefinitions.find(
-            (definition) => definition.destinationDefinitionId === latestDefinition.destinationDefinitionId
-          )?.dockerImageTag !== latestDefinition.dockerImageTag
-      ),
-    [destinationDefinitions, latestDestinationDefinitions]
+    () => destinationDefinitions.filter(Connector.hasNewerVersion),
+    [destinationDefinitions]
   );
 
   const updateAllDestinationVersions = async () => {
@@ -81,7 +51,7 @@ export const useUpdateDestinationDefinitions = () => {
       newDestinationDefinitions?.map((item) =>
         updateDestinationDefinition({
           destinationDefinitionId: item.destinationDefinitionId,
-          dockerImageTag: item.dockerImageTag,
+          dockerImageTag: item.latestDockerImageTag ?? "",
         })
       )
     );

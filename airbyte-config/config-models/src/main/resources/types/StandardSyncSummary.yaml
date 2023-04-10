@@ -14,7 +14,7 @@ required:
   - endTime
   - totalStats
   - streamStats
-additionalProperties: true
+additionalProperties: false
 properties:
   status:
     "$ref": ReplicationStatus.yaml

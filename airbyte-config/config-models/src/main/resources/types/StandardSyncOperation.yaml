@@ -9,7 +9,7 @@ required:
   - operationId
   - name
   - operatorType
-additionalProperties: true
+additionalProperties: false
 properties:
   operationId:
     type: string

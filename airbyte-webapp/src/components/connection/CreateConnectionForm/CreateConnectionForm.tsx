@@ -3,7 +3,7 @@ import React, { Suspense, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ConnectionFormFields } from "components/connection/ConnectionForm/ConnectionFormFields";
-import { CreateControls } from "components/connection/ConnectionForm/CreateControls";
+import CreateControls from "components/connection/ConnectionForm/CreateControls";
 import {
   FormikConnectionFormValues,
   useConnectionValidationSchema,
@@ -105,11 +105,11 @@ const CreateConnectionFormInner: React.FC<CreateConnectionPropsInner> = ({ schem
     <Suspense fallback={<LoadingSchema />}>
       <div className={styles.connectionFormContainer}>
         <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onFormSubmit}>
-          {({ isSubmitting, isValid, dirty, errors }) => (
+          {({ values, isSubmitting, isValid, dirty }) => (
             <Form>
               <CreateConnectionNameField />
               {canEditDataGeographies && <DataResidency />}
-              <ConnectionFormFields isSubmitting={isSubmitting} dirty={dirty} />
+              <ConnectionFormFields values={values} isSubmitting={isSubmitting} dirty={dirty} />
               <OperationsSection
                 onStartEditTransformation={() => setEditingTransformation(true)}
                 onEndEditTransformation={() => setEditingTransformation(false)}
@@ -117,7 +117,7 @@ const CreateConnectionFormInner: React.FC<CreateConnectionPropsInner> = ({ schem
               <CreateControls
                 isSubmitting={isSubmitting}
                 isValid={isValid && !editingTransformation}
-                errorMessage={getErrorMessage(isValid, dirty, errors)}
+                errorMessage={getErrorMessage(isValid, dirty)}
               />
             </Form>
           )}

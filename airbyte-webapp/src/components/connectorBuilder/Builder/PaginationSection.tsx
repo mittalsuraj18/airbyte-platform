@@ -1,4 +1,5 @@
 import { useField } from "formik";
+import capitalize from "lodash/capitalize";
 import { useIntl } from "react-intl";
 
 import GroupControls from "components/GroupControls";
@@ -31,11 +32,6 @@ export const PaginationSection: React.FC<PaginationSectionProps> = ({ streamFiel
         strategy: {
           type: OFFSET_INCREMENT,
           page_size: "",
-        },
-        pageSizeOption: {
-          inject_into: "request_parameter",
-          field_name: "",
-          type: "RequestOption",
         },
         pageTokenOption: {
           inject_into: "request_parameter",
@@ -165,7 +161,7 @@ const PageTokenOption = ({
     <GroupControls
       label={
         <ControlLabels
-          label={`Inject ${label} into outgoing HTTP request`}
+          label={`${capitalize(label)} request option`}
           infoTooltipContent={`Configures how the ${label} will be sent in requests to the source API`}
         />
       }
@@ -184,7 +180,7 @@ const PageSizeOption = ({
 }): JSX.Element => {
   return (
     <ToggleGroupField<RequestOption>
-      label={`Inject ${label} into outgoing HTTP request`}
+      label={`${capitalize(label)} request option`}
       tooltip={`Configures how the ${label} will be sent in requests to the source API`}
       fieldPath={streamFieldPath("paginator.pageSizeOption")}
       initialValues={{

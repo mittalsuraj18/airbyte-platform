@@ -38,7 +38,6 @@ export const PillSelect: React.FC<PillSelectProps> = ({ className, disabledLabel
                 active={isOpen}
                 className={className}
                 hasError={props?.hasError}
-                data-testid="pill-select-button"
               >
                 {(disabled && disabledLabel) || label}
               </PillButton>

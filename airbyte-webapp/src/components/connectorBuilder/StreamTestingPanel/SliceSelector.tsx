@@ -33,7 +33,7 @@ export const SliceSelector: React.FC<SliceSelectorProps> = ({ className, slices,
     (slice: StreamReadSlicesItem, sliceIndex: number) => {
       const fallback = `${formatMessage({ id: "connectorBuilder.sliceLabel" })} ${sliceIndex}`;
 
-      const sliceDescriptor = slice.slice_descriptor;
+      const sliceDescriptor = slice.sliceDescriptor;
 
       if (!sliceDescriptor) {
         return fallback;

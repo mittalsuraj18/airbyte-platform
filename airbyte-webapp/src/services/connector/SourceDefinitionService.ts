@@ -9,17 +9,12 @@ import { isDefined } from "utils/common";
 
 import { connectorDefinitionKeys } from "./ConnectorDefinitions";
 import { useSuspenseQuery } from "./useSuspenseQuery";
-import {
-  SourceDefinitionCreate,
-  SourceDefinitionRead,
-  SourceDefinitionReadList,
-} from "../../core/request/AirbyteClient";
+import { SourceDefinitionCreate, SourceDefinitionRead } from "../../core/request/AirbyteClient";
 import { SCOPE_WORKSPACE } from "../Scope";
 
 export const sourceDefinitionKeys = {
   all: [SCOPE_WORKSPACE, "sourceDefinition"] as const,
   lists: () => [...sourceDefinitionKeys.all, "list"] as const,
-  listLatest: () => [...sourceDefinitionKeys.all, "listLatest"] as const,
   detail: (id: string) => [...sourceDefinitionKeys.all, "details", id] as const,
 };
 
@@ -34,23 +29,35 @@ export function useGetSourceDefinitionService(): SourceDefinitionService {
   );
 }
 
-export const useSourceDefinitionList = (): SourceDefinitionReadList => {
+export interface SourceDefinitionReadWithLatestTag extends SourceDefinitionRead {
+  latestDockerImageTag?: string;
+}
+
+const useSourceDefinitionList = (): {
+  sourceDefinitions: SourceDefinitionReadWithLatestTag[];
+} => {
   const service = useGetSourceDefinitionService();
   const workspaceId = useCurrentWorkspaceId();
 
-  return useSuspenseQuery(sourceDefinitionKeys.lists(), () => service.list(workspaceId));
+  return useSuspenseQuery(sourceDefinitionKeys.lists(), async () => {
+    const [definition, latestDefinition] = await Promise.all([service.list(workspaceId), service.listLatest()]);
+
+    const sourceDefinitions = definition.sourceDefinitions.map((source) => {
+      const withLatest = latestDefinition.sourceDefinitions.find(
+        (latestSource) => latestSource.sourceDefinitionId === source.sourceDefinitionId
+      );
+
+      return {
+        ...source,
+        latestDockerImageTag: withLatest?.dockerImageTag,
+      };
+    });
+
+    return { sourceDefinitions };
+  });
 };
 
-/**
- * This hook calls the list_latest endpoint, which is not needed under most circumstances. Only use this hook if you need the latest source definitions available, for example when prompting the user to update a connector version.
- */
-export const useLatestSourceDefinitionList = (): SourceDefinitionReadList => {
-  const service = useGetSourceDefinitionService();
-
-  return useSuspenseQuery(sourceDefinitionKeys.listLatest(), () => service.listLatest(), { staleTime: 60_000 });
-};
-
-export const useSourceDefinition = <T extends string | undefined>(
+const useSourceDefinition = <T extends string | undefined>(
   sourceDefinitionId: T
 ): T extends string ? SourceDefinitionRead : SourceDefinitionRead | undefined => {
   const service = useGetSourceDefinitionService();
@@ -65,7 +72,7 @@ export const useSourceDefinition = <T extends string | undefined>(
   );
 };
 
-export const useCreateSourceDefinition = () => {
+const useCreateSourceDefinition = () => {
   const service = useGetSourceDefinitionService();
   const queryClient = useQueryClient();
   const workspaceId = useCurrentWorkspaceId();
@@ -85,7 +92,7 @@ export const useCreateSourceDefinition = () => {
   );
 };
 
-export const useUpdateSourceDefinition = () => {
+const useUpdateSourceDefinition = () => {
   const service = useGetSourceDefinitionService();
   const queryClient = useQueryClient();
 
@@ -113,3 +120,5 @@ export const useUpdateSourceDefinition = () => {
     },
   });
 };
+
+export { useSourceDefinition, useSourceDefinitionList, useCreateSourceDefinition, useUpdateSourceDefinition };

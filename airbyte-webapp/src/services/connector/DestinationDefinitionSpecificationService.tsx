@@ -13,8 +13,7 @@ import { SCOPE_WORKSPACE } from "../Scope";
 
 export const destinationDefinitionSpecificationKeys = {
   all: [SCOPE_WORKSPACE, "destinationDefinitionSpecification"] as const,
-  detail: (destinationDefId: string | number, destinationId?: string) =>
-    [...destinationDefinitionSpecificationKeys.all, "details", { destinationDefId, destinationId }] as const,
+  detail: (id: string | number) => [...destinationDefinitionSpecificationKeys.all, "details", id] as const,
 };
 
 function useGetService() {
@@ -27,20 +26,11 @@ function useGetService() {
   );
 }
 
-export const useGetDestinationDefinitionSpecification = (
-  destinationDefinitionId: string,
-  destinationId?: string
-): DestinationDefinitionSpecificationRead => {
+export const useGetDestinationDefinitionSpecification = (id: string): DestinationDefinitionSpecificationRead => {
   const service = useGetService();
-
   const { workspaceId } = useCurrentWorkspace();
-  return useSuspenseQuery(destinationDefinitionSpecificationKeys.detail(destinationDefinitionId, destinationId), () => {
-    if (destinationId) {
-      return service.getForDestination(destinationId);
-    }
 
-    return service.get(destinationDefinitionId, workspaceId);
-  });
+  return useSuspenseQuery(destinationDefinitionSpecificationKeys.detail(id), () => service.get(id, workspaceId));
 };
 
 export const useGetDestinationDefinitionSpecificationAsync = (id: string | null) => {

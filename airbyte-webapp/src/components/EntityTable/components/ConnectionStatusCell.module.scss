@@ -1,12 +1,9 @@
-@use "scss/variables";
-
 $connector-icon-width: 20px;
 $connector-icon-margin: 10px;
 
 .content {
   display: flex;
   align-items: center;
-  gap: variables.$spacing-md;
 }
 
 .text {

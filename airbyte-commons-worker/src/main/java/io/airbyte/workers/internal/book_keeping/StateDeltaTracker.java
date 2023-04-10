@@ -37,11 +37,10 @@ public class StateDeltaTracker {
   private static final int STATE_HASH_BYTES = Integer.BYTES;
   private static final int STREAM_INDEX_BYTES = Short.BYTES;
   private static final int RECORD_COUNT_BYTES = Long.BYTES;
-  private static final int BYTES_COUNT_BYTES = Long.BYTES;
-  private static final int BYTES_PER_STREAM = STREAM_INDEX_BYTES + RECORD_COUNT_BYTES + BYTES_COUNT_BYTES;
+  private static final int BYTES_PER_STREAM = STREAM_INDEX_BYTES + RECORD_COUNT_BYTES;
 
   private final Set<Integer> committedStateHashes;
-  private final Map<Short, StatsCounters> streamToCommittedRecords;
+  private final Map<Short, Long> streamToCommittedRecords;
 
   /**
    * Every time a state is added, a new byte[] containing the state hash and per-stream delta will be
@@ -77,7 +76,7 @@ public class StateDeltaTracker {
    *         available capacity.
    */
   @Trace(operationName = WORKER_OPERATION_NAME)
-  public void addState(final int stateHash, final Map<Short, StatsCounters> streamIndexToRecordCount) throws StateDeltaTrackerException {
+  public void addState(final int stateHash, final Map<Short, Long> streamIndexToRecordCount) throws StateDeltaTrackerException {
     synchronized (this) {
       final int size = STATE_HASH_BYTES + (streamIndexToRecordCount.size() * BYTES_PER_STREAM);
 
@@ -90,10 +89,9 @@ public class StateDeltaTracker {
 
       delta.putInt(stateHash);
 
-      for (final Map.Entry<Short, StatsCounters> entry : streamIndexToRecordCount.entrySet()) {
+      for (final Map.Entry<Short, Long> entry : streamIndexToRecordCount.entrySet()) {
         delta.putShort(entry.getKey());
-        delta.putLong(entry.getValue().recordCount);
-        delta.putLong(entry.getValue().bytesCount);
+        delta.putLong(entry.getValue());
       }
 
       stateDeltas.add(delta.array());
@@ -137,23 +135,17 @@ public class StateDeltaTracker {
         for (int i = 0; i < numStreams; i++) {
           final short streamIndex = currDelta.getShort();
           final long recordCount = currDelta.getLong();
-          final long bytesCount = currDelta.getLong();
 
           // aggregate delta into committed count map
-          StatsCounters currentStats = streamToCommittedRecords.get(streamIndex);
-          if (currentStats == null) {
-            currentStats = new StatsCounters();
-            streamToCommittedRecords.put(streamIndex, currentStats);
-          }
-          currentStats.bytesCount += bytesCount;
-          currentStats.recordCount += recordCount;
+          final long committedRecordCount = streamToCommittedRecords.getOrDefault(streamIndex, 0L);
+          streamToCommittedRecords.put(streamIndex, committedRecordCount + recordCount);
         }
       } while (currStateHash != stateHash); // repeat until each delta up to the committed state is aggregated
     }
   }
 
   @Trace(operationName = WORKER_OPERATION_NAME)
-  public Map<Short, StatsCounters> getStreamToCommittedStats() {
+  public Map<Short, Long> getStreamToCommittedRecords() {
     return streamToCommittedRecords;
   }
 

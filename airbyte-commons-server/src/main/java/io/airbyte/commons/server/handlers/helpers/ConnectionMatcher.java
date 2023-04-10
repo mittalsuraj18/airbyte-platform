@@ -48,8 +48,6 @@ public class ConnectionMatcher implements Matchable<ConnectionRead> {
     fromSearch.sourceCatalogId(query.getSourceCatalogId());
     fromSearch.geography(query.getGeography());
     fromSearch.breakingChange(query.getBreakingChange());
-    fromSearch.notifySchemaChanges(query.getNotifySchemaChanges());
-    fromSearch.notifySchemaChangesByEmail(query.getNotifySchemaChangesByEmail());
 
     return fromSearch;
   }

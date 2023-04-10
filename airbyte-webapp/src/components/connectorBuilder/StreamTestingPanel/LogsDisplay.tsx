@@ -1,41 +1,23 @@
-import classNames from "classnames";
+import { useMemo } from "react";
 import { FormattedMessage } from "react-intl";
 
-import { FlexContainer } from "components/ui/Flex";
 import { NumberBadge } from "components/ui/NumberBadge";
 import { Text } from "components/ui/Text";
 
-import { LogMessage } from "core/request/ConnectorBuilderClient";
+import { StreamReadLogsItem } from "core/request/ConnectorBuilderClient";
 
 import styles from "./LogsDisplay.module.scss";
+import { formatJson } from "../utils";
 
 interface LogsDisplayProps {
-  logs: LogMessage[];
+  logs: StreamReadLogsItem[];
   error?: string;
   onTitleClick: () => void;
 }
 
-const Log: React.FC<{
-  logMessage: LogMessage;
-}> = ({ logMessage }) => {
-  return (
-    <FlexContainer>
-      <div
-        className={classNames(styles.level, {
-          [styles.error]: logMessage.level === "ERROR" || logMessage.level === "FATAL",
-          [styles.warning]: logMessage.level === "WARN",
-        })}
-      >
-        {logMessage.level}
-      </div>
-      <div className={styles.message}>
-        <pre>{logMessage.message}</pre>
-      </div>
-    </FlexContainer>
-  );
-};
-
 export const LogsDisplay: React.FC<LogsDisplayProps> = ({ logs, error, onTitleClick }) => {
+  const formattedLogs = useMemo(() => formatJson(logs), [logs]);
+
   return (
     <div className={styles.container}>
       <button className={styles.header} onClick={onTitleClick}>
@@ -45,15 +27,7 @@ export const LogsDisplay: React.FC<LogsDisplayProps> = ({ logs, error, onTitleCl
         {error !== undefined && <NumberBadge value={1} color="red" />}
       </button>
       <div className={styles.logsDisplay}>
-        {error !== undefined ? (
-          <Text className={styles.error}>{error}</Text>
-        ) : (
-          <FlexContainer direction="column">
-            {logs.map((log, index) => (
-              <Log logMessage={log} key={index} />
-            ))}
-          </FlexContainer>
-        )}
+        {error !== undefined ? <Text className={styles.error}>{error}</Text> : <pre>{formattedLogs}</pre>}
       </div>
     </div>
   );

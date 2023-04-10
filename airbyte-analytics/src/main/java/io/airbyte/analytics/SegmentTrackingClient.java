@@ -55,7 +55,6 @@ public class SegmentTrackingClient implements TrackingClient {
   private static final String AIRBYTE_ROLE = "airbyte_role";
   protected static final String AIRBYTE_SOURCE = "airbyte_source";
   private static final String AIRBYTE_TRACKED_AT = "tracked_at";
-  protected static final String UNKNOWN = "unknown";
 
   // Analytics is threadsafe.
   private final Analytics analytics;
@@ -129,9 +128,9 @@ public class SegmentTrackingClient implements TrackingClient {
     }
     final Map<String, Object> mapCopy = new HashMap<>(metadata);
     final TrackingIdentity trackingIdentity = identityFetcher.apply(workspaceId);
-
     final Optional<String> airbyteSource = getAirbyteSource();
-    mapCopy.put(AIRBYTE_SOURCE, airbyteSource.orElse(UNKNOWN));
+
+    airbyteSource.ifPresent(a -> mapCopy.put(AIRBYTE_SOURCE, a));
 
     // Always add these traits.
     mapCopy.put(AIRBYTE_VERSION_KEY, trackingIdentity.getAirbyteVersion().serialize());

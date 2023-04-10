@@ -5,10 +5,6 @@ global:
   secretName: ""
   credVolumeOverride: ""
   extraContainers: []
-  ## extraSelectorLables [object] - use to specify own additional selector labels for deployment
-  extraSelectorLabels: {}
-  ## extraLabels [object] - use to specify own additional labels for deployment
-  extraLabels: {}
   database:
     secretName: ""
     secretValue: ""
@@ -23,7 +19,7 @@ replicaCount: 1
 ##  image.pullPolicy the pull policy to use for the airbyte server image
 ##  image.tag The airbyte server image tag. Defaults to the chart's AppVersion
 image:
-  repository: airbyte/connector-atelier-server
+  repository: airbyte/connector-builder-server
   pullPolicy: IfNotPresent
 
 ##  podAnnotations [object] Add extra annotations to the server pod
@@ -93,8 +89,8 @@ resources:
 ##  service.type The service type to use for the API server
 ##  service.port The service port to expose the API server on
 service:
-  type: NodePort
-  port: 80
+  type: ClusterIP
+  port: 8003
   annotations: {}
 
 ##  nodeSelector [object] Node labels for pod assignment

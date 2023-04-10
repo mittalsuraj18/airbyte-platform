@@ -1,5 +1,4 @@
 import { render } from "@testing-library/react";
-
 import { mockDestinationDefinition } from "test-utils/mock-data/mockDestination";
 import { mockSourceDefinition } from "test-utils/mock-data/mockSource";
 import { mockConnection, TestWrapper } from "test-utils/testutils";

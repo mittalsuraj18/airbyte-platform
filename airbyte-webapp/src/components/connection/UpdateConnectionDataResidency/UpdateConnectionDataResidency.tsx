@@ -5,6 +5,7 @@ import { DataGeographyDropdown } from "components/common/DataGeographyDropdown";
 import { ControlLabels } from "components/LabeledControl";
 import { Card } from "components/ui/Card";
 import { Spinner } from "components/ui/Spinner";
+import { ToastType } from "components/ui/Toast";
 import { TooltipLearnMoreLink } from "components/ui/Tooltip";
 
 import { Geography } from "core/request/AirbyteClient";
@@ -34,7 +35,7 @@ export const UpdateConnectionDataResidency: React.FC = () => {
       registerNotification({
         id: "connection.geographyUpdateError",
         text: formatMessage({ id: "connection.geographyUpdateError" }),
-        type: "error",
+        type: ToastType.ERROR,
       });
     }
     setSelectedValue(undefined);
@@ -63,7 +64,7 @@ export const UpdateConnectionDataResidency: React.FC = () => {
           />
         </div>
         <div className={styles.dropdownWrapper}>
-          <div className={styles.spinner}>{connectionUpdating && <Spinner size="sm" />}</div>
+          <div className={styles.spinner}>{connectionUpdating && <Spinner small />}</div>
           <div className={styles.dropdown}>
             <DataGeographyDropdown
               isDisabled={connectionUpdating}

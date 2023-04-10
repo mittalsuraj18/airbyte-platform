@@ -1,17 +1,17 @@
-import { StoryObj } from "@storybook/react";
+import { ComponentStory, ComponentMeta } from "@storybook/react";
 
 import { Heading } from "./Heading";
 
 export default {
   title: "Ui/Heading",
   component: Heading,
-} as StoryObj<typeof Heading>;
+} as ComponentMeta<typeof Heading>;
 
-export const Primary: StoryObj<typeof Heading> = {
-  args: {
-    as: "h1",
-    size: "md",
-    children:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
+const Template: ComponentStory<typeof Heading> = (args) => <Heading {...args} />;
+
+export const Primary = Template.bind({});
+Primary.args = {
+  size: "md",
+  children:
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
 };

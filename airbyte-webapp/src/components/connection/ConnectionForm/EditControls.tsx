@@ -42,21 +42,10 @@ const EditControls: React.FC<EditControlProps> = ({
     >
       <ResponseMessage dirty={dirty} successMessage={successMessage} errorMessage={errorMessage} />
       <FlexContainer gap="md">
-        <Button
-          type="button"
-          variant="secondary"
-          disabled={isButtonDisabled}
-          onClick={resetForm}
-          data-testid="cancel-edit-button"
-        >
+        <Button type="button" variant="secondary" disabled={isButtonDisabled} onClick={resetForm}>
           <FormattedMessage id="form.cancel" />
         </Button>
-        <Button
-          type="submit"
-          isLoading={isSubmitting}
-          disabled={isButtonDisabled || submitDisabled}
-          data-testid="save-edit-button"
-        >
+        <Button type="submit" isLoading={isSubmitting} disabled={isButtonDisabled || submitDisabled}>
           <FormattedMessage id="form.saveChanges" />
         </Button>
       </FlexContainer>

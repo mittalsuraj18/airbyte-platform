@@ -1,1 +1,3 @@
-export { AllConnectionsPage as default } from "./AllConnectionsPage";
+import { AllConnectionsPage } from "./AllConnectionsPage";
+
+export default AllConnectionsPage;

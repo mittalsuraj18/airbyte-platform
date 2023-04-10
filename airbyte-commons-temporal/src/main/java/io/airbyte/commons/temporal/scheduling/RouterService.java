@@ -42,12 +42,7 @@ public class RouterService {
    */
   public String getTaskQueue(final UUID connectionId, final TemporalJobType jobType) throws IOException {
     final Geography geography = configRepository.getGeographyForConnection(connectionId);
-    final UUID workspaceId = configRepository.getStandardWorkspaceFromConnection(connectionId, false).getWorkspaceId();
-    if (featureFlags.processInGcpDataPlane(workspaceId.toString())) {
-      return taskQueueMapper.getTaskQueueFlagged(geography, jobType);
-    } else {
-      return taskQueueMapper.getTaskQueue(geography, jobType);
-    }
+    return taskQueueMapper.getTaskQueue(geography, jobType);
   }
 
   /**
@@ -64,11 +59,11 @@ public class RouterService {
       throw new RuntimeException("Jobtype not expected to call - getTaskQueueForWorkspace - " + jobType);
     }
 
-    final Geography geography = configRepository.getGeographyForWorkspace(workspaceId);
-    if (featureFlags.processInGcpDataPlane(workspaceId.toString())) {
-      return taskQueueMapper.getTaskQueueFlagged(geography, jobType);
-    } else {
+    if (featureFlags.routeTaskQueueForWorkspaceEnabled() || featureFlags.routeTaskQueueForWorkspaceAllowList().contains(workspaceId.toString())) {
+      final Geography geography = configRepository.getGeographyForWorkspace(workspaceId);
       return taskQueueMapper.getTaskQueue(geography, jobType);
+    } else {
+      return taskQueueMapper.getTaskQueue(Geography.AUTO, jobType);
     }
   }
 

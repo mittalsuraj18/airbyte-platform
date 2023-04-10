@@ -1,12 +1,14 @@
 import classNames from "classnames";
 import { FormattedMessage } from "react-intl";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
+import { useRefreshSourceSchemaWithConfirmationOnDirty } from "components/connection/ConnectionForm/refreshSourceSchemaWithConfirmationOnDirty";
 import { Button } from "components/ui/Button";
 import { Text } from "components/ui/Text";
 
 import { useSchemaChanges } from "hooks/connection/useSchemaChanges";
 import { useConnectionEditService } from "hooks/services/ConnectionEdit/ConnectionEditService";
+import { useFormChangeTrackerService } from "hooks/services/FormChangeTracker";
 import { ConnectionRoutePaths } from "pages/connections/types";
 
 import styles from "./SchemaChangesDetected.module.scss";
@@ -17,8 +19,11 @@ export const SchemaChangesDetected: React.FC = () => {
     schemaRefreshing,
     schemaHasBeenRefreshed,
   } = useConnectionEditService();
+  const { hasFormChanges } = useFormChangeTrackerService();
 
   const { hasBreakingSchemaChange, hasNonBreakingSchemaChange } = useSchemaChanges(schemaChange);
+  const refreshSchema = useRefreshSourceSchemaWithConfirmationOnDirty(hasFormChanges);
+  const location = useLocation();
   const navigate = useNavigate();
 
   if (schemaHasBeenRefreshed) {
@@ -26,7 +31,11 @@ export const SchemaChangesDetected: React.FC = () => {
   }
 
   const onReviewActionButtonClick: React.MouseEventHandler<HTMLButtonElement> = () => {
-    navigate(ConnectionRoutePaths.Replication, { state: { triggerRefreshSchema: true } });
+    if (!location.pathname.includes(`/${ConnectionRoutePaths.Replication}`)) {
+      navigate(ConnectionRoutePaths.Replication);
+    }
+
+    refreshSchema();
   };
 
   const schemaChangeClassNames = {

@@ -20,6 +20,14 @@ class NamesTest {
   }
 
   @Test
+  void testDoubleQuote() {
+    assertEquals("\"abc\"", Names.doubleQuote("abc"));
+    assertEquals("\"abc\"", Names.doubleQuote("\"abc\""));
+    assertThrows(IllegalStateException.class, () -> Names.doubleQuote("\"abc"));
+    assertThrows(IllegalStateException.class, () -> Names.doubleQuote("abc\""));
+  }
+
+  @Test
   void testSimpleQuote() {
     assertEquals("'abc'", Names.singleQuote("abc"));
     assertEquals("'abc'", Names.singleQuote("'abc'"));

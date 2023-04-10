@@ -5,13 +5,12 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { Button } from "components/ui/Button";
 import { FlexContainer } from "components/ui/Flex";
 import { Text } from "components/ui/Text";
-import { TextInputContainer } from "components/ui/TextInputContainer";
 
 import { useConnectionFormService } from "hooks/services/ConnectionForm/ConnectionFormService";
 import { useModalService } from "hooks/services/Modal";
 
 import { FormikConnectionFormValues } from "./formConfig";
-import { FormFieldLayout } from "./FormFieldLayout";
+import { FormFieldWrapper } from "./FormFieldWrapper";
 import { ControlLabels } from "../../LabeledControl";
 import {
   DestinationStreamNamesFormValueType,
@@ -55,7 +54,7 @@ export const DestinationStreamPrefixName = () => {
   return (
     <Field name="prefix">
       {({ field }: FieldProps<string>) => (
-        <FormFieldLayout>
+        <FormFieldWrapper>
           <ControlLabels
             nextLine
             optional
@@ -66,25 +65,22 @@ export const DestinationStreamPrefixName = () => {
               id: "form.prefix.message",
             })}
           />
-          <FlexContainer alignItems="center" justifyContent="space-between" gap="sm">
-            <TextInputContainer disabled>
-              <Text>
-                {!field.value
-                  ? formatMessage({ id: "connectionForm.modal.destinationStreamNames.radioButton.mirror" })
-                  : field.value}
-              </Text>
-            </TextInputContainer>
+          <FlexContainer alignItems="center" justifyContent="space-between">
+            <Text color="grey">
+              {field.value === ""
+                ? formatMessage({ id: "connectionForm.modal.destinationStreamNames.radioButton.mirror" })
+                : field.value}
+            </Text>
             <Button
               type="button"
               variant="secondary"
               disabled={mode === "readonly"}
               onClick={openDestinationStreamNamesModal}
-              data-testid="destination-stream-prefix-edit-button"
             >
               <FormattedMessage id="form.edit" />
             </Button>
           </FlexContainer>
-        </FormFieldLayout>
+        </FormFieldWrapper>
       )}
     </Field>
   );

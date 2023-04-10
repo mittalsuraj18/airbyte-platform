@@ -4,29 +4,18 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { LoadingPage } from "components";
 
-import ConnectorBuilderListPage from "./ConnectorBuilderListPage";
-
-const ConnectorBuilderCreatePage = React.lazy(() => import("./ConnectorBuilderCreatePage"));
-const ConnectorBuilderForkPage = React.lazy(() => import("./ConnectorBuilderForkPage"));
+const ConnectorBuilderLandingPage = React.lazy(() => import("./ConnectorBuilderLandingPage"));
 const ConnectorBuilderEditPage = React.lazy(() => import("./ConnectorBuilderEditPage"));
 
 export const enum ConnectorBuilderRoutePaths {
-  Create = "create",
-  Fork = "fork",
-  Edit = "edit/:projectId",
-}
-
-export function getEditPath(projectId: string) {
-  return `edit/${projectId}`;
+  Edit = "edit",
 }
 
 const ConnectorBuilderRoutes: React.FC = () => (
   <Suspense fallback={<LoadingPage />}>
     <Routes>
       <Route path={ConnectorBuilderRoutePaths.Edit} element={<ConnectorBuilderEditPage />} />
-      <Route path={ConnectorBuilderRoutePaths.Create} element={<ConnectorBuilderCreatePage />} />
-      <Route path={ConnectorBuilderRoutePaths.Fork} element={<ConnectorBuilderForkPage />} />
-      <Route index element={<ConnectorBuilderListPage />} />
+      <Route index element={<ConnectorBuilderLandingPage />} />
       <Route path="*" element={<Navigate to="." replace />} />
     </Routes>
   </Suspense>

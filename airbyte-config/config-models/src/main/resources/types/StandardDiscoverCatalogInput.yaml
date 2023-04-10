@@ -9,7 +9,7 @@ required:
   - sourceId
   - connectorVersion
   - configHash
-additionalProperties: true
+additionalProperties: false
 properties:
   connectionConfiguration:
     description: Integration specific blob. Must be a valid JSON string.

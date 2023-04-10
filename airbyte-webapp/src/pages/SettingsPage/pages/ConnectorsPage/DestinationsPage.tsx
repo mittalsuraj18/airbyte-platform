@@ -1,10 +1,14 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
+import { useAsyncFn } from "react-use";
 
 import { DestinationDefinitionRead } from "core/request/AirbyteClient";
-import { useAvailableDestinationDefinitions } from "hooks/domain/connector/useAvailableDestinationDefinitions";
 import { useTrackPage, PageTrackingCodes } from "hooks/services/Analytics";
-import { useUpdateDestinationDefinition } from "services/connector/DestinationDefinitionService";
+import { useGetConnectorsOutOfDate, useUpdateDestinationDefinitions } from "hooks/services/useConnector";
+import {
+  useDestinationDefinitionList,
+  useUpdateDestinationDefinition,
+} from "services/connector/DestinationDefinitionService";
 
 import ConnectorsView from "./components/ConnectorsView";
 import { useDestinationList } from "../../../../hooks/services/useDestinationHook";
@@ -12,8 +16,9 @@ import { useDestinationList } from "../../../../hooks/services/useDestinationHoo
 const DestinationsPage: React.FC = () => {
   useTrackPage(PageTrackingCodes.SETTINGS_DESTINATION);
 
+  const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
   const { formatMessage } = useIntl();
-  const destinationDefinitions = useAvailableDestinationDefinitions();
+  const { destinationDefinitions } = useDestinationDefinitionList();
   const { destinations } = useDestinationList();
 
   const [feedbackList, setFeedbackList] = useState<Record<string, string>>({});
@@ -22,6 +27,8 @@ const DestinationsPage: React.FC = () => {
 
   const { mutateAsync: updateDestinationDefinition } = useUpdateDestinationDefinition();
   const [updatingDefinitionId, setUpdatingDefinitionId] = useState<string>();
+
+  const { hasNewDestinationVersion } = useGetConnectorsOutOfDate();
 
   const onUpdateVersion = useCallback(
     async ({ id, version }: { id: string; version: string }) => {
@@ -60,13 +67,29 @@ const DestinationsPage: React.FC = () => {
     return Array.from(destinationDefinitionMap.values());
   }, [destinations, destinationDefinitions]);
 
+  const { updateAllDestinationVersions } = useUpdateDestinationDefinitions();
+
+  const [{ loading, error }, onUpdate] = useAsyncFn(async () => {
+    setIsUpdateSuccess(false);
+    await updateAllDestinationVersions();
+    setIsUpdateSuccess(true);
+    setTimeout(() => {
+      setIsUpdateSuccess(false);
+    }, 2000);
+  }, [updateAllDestinationVersions]);
+
   return (
     <ConnectorsView
       type="destinations"
+      isUpdateSuccess={isUpdateSuccess}
+      hasNewConnectorVersion={hasNewDestinationVersion}
       onUpdateVersion={onUpdateVersion}
       usedConnectorsDefinitions={usedDestinationDefinitions}
       connectorsDefinitions={destinationDefinitions}
       updatingDefinitionId={updatingDefinitionId}
+      loading={loading}
+      error={error}
+      onUpdate={onUpdate}
       feedbackList={feedbackList}
     />
   );

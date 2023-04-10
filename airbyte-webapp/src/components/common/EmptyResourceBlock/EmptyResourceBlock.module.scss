@@ -1,5 +1,4 @@
 @use "scss/colors";
-@use "scss/variables";
 
 .content {
   padding: 74px 0 111px;
@@ -21,8 +20,8 @@
 
 .description {
   font-weight: normal;
-  font-size: variables.$font-size-lg;
-  line-height: 1.3;
+  font-size: 14px;
+  line-height: 19px;
   color: colors.$grey-500;
   margin-top: 5px;
 }

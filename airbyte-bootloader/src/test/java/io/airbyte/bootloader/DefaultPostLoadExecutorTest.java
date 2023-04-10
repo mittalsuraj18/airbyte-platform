@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 
 import io.airbyte.commons.features.FeatureFlags;
 import io.airbyte.config.init.ApplyDefinitionsHelper;
-import io.airbyte.config.init.DeclarativeSourceUpdater;
 import io.airbyte.persistence.job.JobPersistence;
 import io.airbyte.validation.json.JsonValidationException;
 import java.io.IOException;
@@ -39,10 +38,8 @@ class DefaultPostLoadExecutorTest {
     when(featureFlags.forceSecretMigration()).thenReturn(forceSecretMigration);
     when(jobPersistence.isSecretMigrated()).thenReturn(isSecretMigration);
 
-    final DeclarativeSourceUpdater declarativeSourceUpdater = mock(DeclarativeSourceUpdater.class);
-
     final DefaultPostLoadExecutor postLoadExecution =
-        new DefaultPostLoadExecutor(applyDefinitionsHelper, declarativeSourceUpdater, featureFlags, jobPersistence, secretMigrator);
+        new DefaultPostLoadExecutor(applyDefinitionsHelper, featureFlags, jobPersistence, secretMigrator);
 
     assertDoesNotThrow(() -> postLoadExecution.execute());
     verify(applyDefinitionsHelper, times(1)).apply();
@@ -52,14 +49,13 @@ class DefaultPostLoadExecutorTest {
   @Test
   void testPostLoadExecutionNullSecretManager() throws JsonValidationException, IOException {
     final ApplyDefinitionsHelper applyDefinitionsHelper = mock(ApplyDefinitionsHelper.class);
-    final DeclarativeSourceUpdater declarativeSourceUpdater = mock(DeclarativeSourceUpdater.class);
     final FeatureFlags featureFlags = mock(FeatureFlags.class);
     final JobPersistence jobPersistence = mock(JobPersistence.class);
 
     when(featureFlags.forceSecretMigration()).thenReturn(true);
 
     final DefaultPostLoadExecutor postLoadExecution =
-        new DefaultPostLoadExecutor(applyDefinitionsHelper, declarativeSourceUpdater, featureFlags, jobPersistence, null);
+        new DefaultPostLoadExecutor(applyDefinitionsHelper, featureFlags, jobPersistence, null);
 
     assertDoesNotThrow(() -> postLoadExecution.execute());
     verify(applyDefinitionsHelper, times(1)).apply();
@@ -68,7 +64,6 @@ class DefaultPostLoadExecutorTest {
   @Test
   void testPostLoadExecutionWithException() throws JsonValidationException, IOException {
     final ApplyDefinitionsHelper applyDefinitionsHelper = mock(ApplyDefinitionsHelper.class);
-    final DeclarativeSourceUpdater declarativeSourceUpdater = mock(DeclarativeSourceUpdater.class);
     final FeatureFlags featureFlags = mock(FeatureFlags.class);
     final JobPersistence jobPersistence = mock(JobPersistence.class);
     final SecretMigrator secretMigrator = mock(SecretMigrator.class);
@@ -76,7 +71,7 @@ class DefaultPostLoadExecutorTest {
     doThrow(new IOException("test")).when(applyDefinitionsHelper).apply();
 
     final DefaultPostLoadExecutor postLoadExecution =
-        new DefaultPostLoadExecutor(applyDefinitionsHelper, declarativeSourceUpdater, featureFlags, jobPersistence, secretMigrator);
+        new DefaultPostLoadExecutor(applyDefinitionsHelper, featureFlags, jobPersistence, secretMigrator);
 
     assertThrows(IOException.class, () -> postLoadExecution.execute());
   }

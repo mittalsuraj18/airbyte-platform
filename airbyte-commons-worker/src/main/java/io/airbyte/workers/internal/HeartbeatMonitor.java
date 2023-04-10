@@ -7,10 +7,8 @@ package io.airbyte.workers.internal;
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
-import lombok.Getter;
 
 /**
  * Tracks heartbeats and, when asked, says if it has been too long since the last heartbeat. He's
@@ -20,18 +18,17 @@ import lombok.Getter;
  */
 public class HeartbeatMonitor {
 
-  @Getter
-  private final Duration heartbeatFreshnessThreshold;
+  private final Duration heartBeatFreshDuration;
   private final Supplier<Instant> nowSupplier;
   private final AtomicReference<Instant> lastBeat;
 
-  public HeartbeatMonitor(final Duration heartbeatFreshnessThreshold) {
-    this(heartbeatFreshnessThreshold, Instant::now);
+  public HeartbeatMonitor(final Duration heartBeatFreshDuration) {
+    this(heartBeatFreshDuration, Instant::now);
   }
 
   @VisibleForTesting
-  public HeartbeatMonitor(final Duration heartbeatFreshnessThreshold, final Supplier<Instant> nowSupplier) {
-    this.heartbeatFreshnessThreshold = heartbeatFreshnessThreshold;
+  public HeartbeatMonitor(final Duration heartBeatFreshDuration, final Supplier<Instant> nowSupplier) {
+    this.heartBeatFreshDuration = heartBeatFreshDuration;
     this.nowSupplier = nowSupplier;
     this.lastBeat = new AtomicReference<>(null);
   }
@@ -49,21 +46,10 @@ public class HeartbeatMonitor {
    * @return true if the last heartbeat is still "fresh". i.e. time since last heartbeat is less than
    *         heartBeatFreshDuration. otherwise, false.
    */
-  public Optional<Boolean> isBeating() {
-    return getTimeSinceLastBeat().map(timeSinceLastBeat -> timeSinceLastBeat.compareTo(heartbeatFreshnessThreshold) < 0);
-  }
-
-  /**
-   * Return the time since the last beat. It returns empty is no beat has been performed.
-   */
-  public Optional<Duration> getTimeSinceLastBeat() {
+  public boolean isBeating() {
     final Instant instantFetched = lastBeat.get();
-
-    if (instantFetched == null) {
-      return Optional.empty();
-    } else {
-      return Optional.ofNullable(Duration.between(lastBeat.get(), nowSupplier.get()));
-    }
+    final Instant now = nowSupplier.get();
+    return instantFetched != null && instantFetched.plus(heartBeatFreshDuration).isAfter(now);
   }
 
 }

@@ -10,12 +10,7 @@ export const useAnalyticsTrackFunctions = (connectorType: "source" | "destinatio
   const namespaceType = connectorType === "source" ? Namespace.SOURCE : Namespace.DESTINATION;
 
   const trackAction = useCallback(
-    (
-      connector: ConnectorDefinition | undefined,
-      actionType: Action,
-      actionDescription: string,
-      failureReason?: string
-    ) => {
+    (connector: ConnectorDefinition | undefined, actionType: Action, actionDescription: string) => {
       if (!connector) {
         return;
       }
@@ -24,7 +19,6 @@ export const useAnalyticsTrackFunctions = (connectorType: "source" | "destinatio
         connector: connector.name,
         connector_definition_id: Connector.id(connector),
         connector_documentation_url: connector.documentationUrl,
-        failure_reason: failureReason,
       });
     },
     [analytics, namespaceType]
@@ -45,8 +39,8 @@ export const useAnalyticsTrackFunctions = (connectorType: "source" | "destinatio
   );
 
   const trackTestConnectorFailure = useCallback(
-    (connector: ConnectorDefinition | undefined, failureReason: string) => {
-      trackAction(connector, Action.FAILURE, "Tested connector - failure", failureReason);
+    (connector: ConnectorDefinition | undefined) => {
+      trackAction(connector, Action.FAILURE, "Tested connector - failure");
     },
     [trackAction]
   );

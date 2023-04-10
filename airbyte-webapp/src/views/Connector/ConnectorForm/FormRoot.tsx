@@ -1,24 +1,22 @@
 import { Form, useFormikContext } from "formik";
 import React, { ReactNode } from "react";
 
+import { Card } from "components/ui/Card";
 import { FlexContainer } from "components/ui/Flex";
 
-import { FormBlock, GroupDetails } from "core/form/types";
+import { FormBlock } from "core/form/types";
 
 import { FormSection } from "./components/Sections/FormSection";
 import { useConnectorForm } from "./connectorFormContext";
+import styles from "./FormRoot.module.scss";
 import { ConnectorFormValues } from "./types";
 
-export interface FormRootProps {
-  formFields: FormBlock[];
-  groupStructure?: GroupDetails[];
+export interface BaseFormRootProps {
+  formFields: FormBlock;
   connectionTestSuccess?: boolean;
   isTestConnectionInProgress?: boolean;
   bodyClassName?: string;
   headerBlock?: ReactNode;
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  full?: boolean;
   castValues: (values: ConnectorFormValues) => ConnectorFormValues;
   renderFooter?: (formProps: {
     dirty: boolean;
@@ -31,10 +29,20 @@ export interface FormRootProps {
   }) => ReactNode;
 }
 
-export const FormRoot: React.FC<FormRootProps> = ({
+interface CardFormRootProps extends BaseFormRootProps {
+  renderWithCard: true;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  full?: boolean;
+}
+
+interface BareFormRootProps extends BaseFormRootProps {
+  renderWithCard?: false;
+}
+
+export const FormRoot: React.FC<CardFormRootProps | BareFormRootProps> = ({
   isTestConnectionInProgress = false,
   formFields,
-  groupStructure,
   bodyClassName,
   headerBlock,
   renderFooter,
@@ -45,26 +53,24 @@ export const FormRoot: React.FC<FormRootProps> = ({
   const { resetConnectorForm, isEditMode, formType } = useConnectorForm();
 
   const formBody = (
-    <FormSection
-      headerBlock={
-        headerBlock || props.title || props.description
-          ? {
-              elements: headerBlock,
-              title: props.title,
-              description: props.description,
-            }
-          : undefined
-      }
-      rootLevel
-      blocks={formFields}
-      groupStructure={groupStructure}
-      disabled={isSubmitting || isTestConnectionInProgress}
-    />
+    <>
+      {headerBlock}
+      <div className={bodyClassName}>
+        <FormSection blocks={formFields} disabled={isSubmitting || isTestConnectionInProgress} />
+      </div>
+    </>
   );
+
   return (
     <Form>
       <FlexContainer direction="column" gap="xl">
-        <div className={bodyClassName}>{formBody}</div>
+        {props.renderWithCard ? (
+          <Card title={props.title} description={props.description} fullWidth={props.full}>
+            <div className={styles.cardForm}>{formBody}</div>
+          </Card>
+        ) : (
+          formBody
+        )}
         {renderFooter &&
           renderFooter({
             dirty,

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 
 import { ConfirmationModal } from "components/common/ConfirmationModal";
 
@@ -52,11 +52,6 @@ export const ConfirmationModalService = ({ children }: { children: React.ReactNo
     [closeConfirmationModal, openConfirmationModal]
   );
 
-  const onClose = useCallback(() => {
-    closeConfirmationModal();
-    state.confirmationModal?.onClose?.();
-  }, [closeConfirmationModal, state.confirmationModal]);
-
   return (
     <>
       <ConfirmationModalServiceContext.Provider value={confirmationModalService}>
@@ -64,7 +59,7 @@ export const ConfirmationModalService = ({ children }: { children: React.ReactNo
       </ConfirmationModalServiceContext.Provider>
       {state.isOpen && state.confirmationModal ? (
         <ConfirmationModal
-          onClose={onClose}
+          onClose={closeConfirmationModal}
           additionalContent={state.confirmationModal.additionalContent}
           title={state.confirmationModal.title}
           text={state.confirmationModal.text}

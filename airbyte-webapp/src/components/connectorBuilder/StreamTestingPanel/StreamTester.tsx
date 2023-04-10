@@ -1,8 +1,12 @@
+import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useLocalStorage } from "react-use";
 
-import { Message } from "components/ui/Message";
+import { Button } from "components/ui/Button";
+import { Callout } from "components/ui/Callout";
+import { FlexContainer, FlexItem } from "components/ui/Flex";
 import { ResizablePanels } from "components/ui/ResizablePanels";
 import { Spinner } from "components/ui/Spinner";
 import { Text } from "components/ui/Text";
@@ -17,7 +21,6 @@ import { LogsDisplay } from "./LogsDisplay";
 import { ResultDisplay } from "./ResultDisplay";
 import { StreamTestButton } from "./StreamTestButton";
 import styles from "./StreamTester.module.scss";
-import { useTestWarnings } from "./useTestWarnings";
 
 export const StreamTester: React.FC<{
   hasTestInputJsonErrors: boolean;
@@ -59,15 +62,13 @@ export const StreamTester: React.FC<{
       : unknownErrorMessage
     : undefined;
 
-  const logContainsError = streamReadData?.logs.some((log) => log.level === "ERROR" || log.level === "FATAL");
-
   useEffect(() => {
-    if (isError || logContainsError) {
+    if (isError) {
       setLogsFlex(1);
     } else {
       setLogsFlex(0);
     }
-  }, [isError, logContainsError]);
+  }, [isError]);
 
   useEffect(() => {
     // This will only be true if the data was manually refetched by the user clicking the Test button,
@@ -88,23 +89,21 @@ export const StreamTester: React.FC<{
     }
   }, [analyticsService, errorMessage, isFetchedAfterMount, streamName, dataUpdatedAt, errorUpdatedAt]);
 
-  const testDataWarnings = useTestWarnings();
-
   const currentStream = streams[testStreamIndex] as StreamsListReadStreamsItem | undefined;
   return (
     <div className={styles.container}>
       {currentStream && (
-        <Text size="lg" align="center" className={styles.url}>
+        <Text className={styles.url} centered size="lg">
           {currentStream.url}
         </Text>
       )}
       {!currentStream && isFetchingStreamList && (
-        <Text size="lg" align="center">
+        <Text size="lg" centered>
           <FormattedMessage id="connectorBuilder.loadingStreamList" />
         </Text>
       )}
       {!currentStream && streamListErrorMessage && (
-        <Text size="lg" align="center">
+        <Text size="lg" centered>
           <FormattedMessage id="connectorBuilder.streamListUrlError" />
         </Text>
       )}
@@ -148,15 +147,23 @@ export const StreamTester: React.FC<{
         </div>
       )}
       {!isFetching && streamReadData && streamReadData.test_read_limit_reached && showLimitWarning && (
-        <Message
-          type="warning"
-          text={<FormattedMessage id="connectorBuilder.streamTestLimitReached" />}
-          onClose={() => {
-            setShowLimitWarning(false);
-          }}
-        />
+        <Callout>
+          <FlexItem grow>
+            <FlexContainer alignItems="center">
+              <FlexItem grow>
+                <FormattedMessage id="connectorBuilder.streamTestLimitReached" />
+              </FlexItem>
+              <Button
+                onClick={() => {
+                  setShowLimitWarning(false);
+                }}
+                variant="clear"
+                icon={<FontAwesomeIcon icon={faClose} />}
+              />
+            </FlexContainer>
+          </FlexItem>
+        </Callout>
       )}
-      {!isFetching && testDataWarnings.map((warning, index) => <Message type="warning" text={warning} key={index} />)}
       {!isFetching && (streamReadData !== undefined || errorMessage !== undefined) && (
         <ResizablePanels
           className={styles.resizablePanelsContainer}

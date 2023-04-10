@@ -28,14 +28,10 @@ interface WrapperProps {
 export async function render<
   Q extends Queries = typeof queries,
   Container extends Element | DocumentFragment = HTMLElement
->(
-  ui: React.ReactNode,
-  renderOptions?: RenderOptions<Q, Container>,
-  features?: FeatureItem[]
-): Promise<RenderResult<Q, Container>> {
+>(ui: React.ReactNode, renderOptions?: RenderOptions<Q, Container>): Promise<RenderResult<Q, Container>> {
   const Wrapper = ({ children }: WrapperProps) => {
     return (
-      <TestWrapper features={features}>
+      <TestWrapper>
         <Suspense fallback={<div>testutils render fallback content</div>}>{children}</Suspense>
       </TestWrapper>
     );
@@ -130,6 +126,5 @@ export const mockConnection: WebBackendConnectionRead = {
   isSyncing: false,
   schemaChange: "no_change",
   notifySchemaChanges: true,
-  notifySchemaChangesByEmail: false,
   nonBreakingChangesPreference: "ignore",
 };

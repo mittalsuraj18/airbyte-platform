@@ -5,8 +5,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: variables.$font-size-sm;
-  line-height: 1.2;
+  font-size: 12px;
+  line-height: 15px;
   color: colors.$grey;
   border-radius: variables.$border-radius-sm;
   border: 0;
@@ -107,19 +107,19 @@
 
   &.sizeXS {
     height: variables.$button-height-xs;
-    font-size: variables.$font-size-sm;
+    font-size: 12px;
     line-height: 15px;
     padding: 10px;
 
     .buttonIcon {
-      font-size: variables.$font-size-lg;
+      font-size: 14px;
     }
   }
 
   &.sizeS {
     height: variables.$button-height-sm;
-    font-size: variables.$font-size-sm;
-    line-height: 1.2;
+    font-size: 12px;
+    line-height: 15px;
     padding: 10px 14px;
 
     .buttonIcon {
@@ -243,14 +243,5 @@
         color: colors.$transparentColor;
       }
     }
-  }
-
-  &.link {
-    font: inherit;
-    padding: 0;
-    background: none;
-    background-color: transparent;
-    border: none;
-    text-decoration: underline;
   }
 }

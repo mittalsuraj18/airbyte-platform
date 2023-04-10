@@ -19,7 +19,7 @@ export const LoadingBackdrop: React.FC<React.PropsWithChildren<LoadingBackdropPr
         <>
           <div className={styles.backdrop} data-testid="loading-backdrop" />
           <div className={styles.spinnerContainer}>
-            <Spinner size={small ? "sm" : "md"} />
+            <Spinner small={small} />
           </div>
         </>
       )}

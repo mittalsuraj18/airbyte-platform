@@ -1,3 +1,5 @@
+import { faWarning } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
 import { diffJson, Change } from "diff";
 import { useField } from "formik";
@@ -7,8 +9,8 @@ import { FormattedMessage } from "react-intl";
 import { useDebounce } from "react-use";
 
 import { Button } from "components/ui/Button";
+import { Callout } from "components/ui/Callout";
 import { FlexContainer, FlexItem } from "components/ui/Flex";
-import { Message } from "components/ui/Message";
 import { Tooltip } from "components/ui/Tooltip";
 
 import { Action, Namespace } from "core/analytics";
@@ -85,9 +87,11 @@ export const SchemaDiffView: React.FC<SchemaDiffViewProps> = ({ inferredSchema }
   return (
     <FlexContainer direction="column">
       {editorView === "ui" && field.value && field.value !== formattedSchema && (
-        <Message type="warning" text={<FormattedMessage id="connectorBuilder.differentSchemaDescription" />}>
-          <FlexItem grow className={styles.mergeButtons}>
+        <Callout className={styles.infoBox}>
+          <FontAwesomeIcon icon={faWarning} size="lg" />
+          <FlexItem grow>
             <FlexContainer direction="column">
+              <FormattedMessage id="connectorBuilder.differentSchemaDescription" />
               <FlexContainer>
                 <FlexItem grow>
                   <Button
@@ -137,7 +141,7 @@ export const SchemaDiffView: React.FC<SchemaDiffViewProps> = ({ inferredSchema }
               </FlexContainer>
             </FlexContainer>
           </FlexItem>
-        </Message>
+        </Callout>
       )}
       {editorView === "ui" && !field.value && (
         <Button
@@ -150,7 +154,6 @@ export const SchemaDiffView: React.FC<SchemaDiffViewProps> = ({ inferredSchema }
               stream_name: streams[testStreamIndex]?.name,
             });
           }}
-          data-testid="accept-schema"
         >
           <FormattedMessage id="connectorBuilder.useSchemaButton" />
         </Button>

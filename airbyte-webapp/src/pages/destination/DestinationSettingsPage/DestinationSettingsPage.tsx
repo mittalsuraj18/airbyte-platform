@@ -22,10 +22,7 @@ import { DestinationOutletContext } from "../types";
 export const DestinationSettingsPage: React.FC = () => {
   const { destination } = useOutletContext<DestinationOutletContext>();
   const { connections: connectionsWithDestination } = useConnectionList({ destinationId: [destination.destinationId] });
-  const destinationSpecification = useGetDestinationDefinitionSpecification(
-    destination.destinationDefinitionId,
-    destination.destinationId
-  );
+  const destinationSpecification = useGetDestinationDefinitionSpecification(destination.destinationDefinitionId);
   const destinationDefinition = useDestinationDefinition(destination.destinationDefinitionId);
   const reloadDestination = useInvalidateDestination(destination.destinationId);
   const { mutateAsync: updateDestination } = useUpdateDestination();

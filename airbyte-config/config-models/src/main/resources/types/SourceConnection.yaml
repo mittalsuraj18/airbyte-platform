@@ -11,7 +11,7 @@ required:
   - workspaceId
   - configuration
   - tombstone
-additionalProperties: true
+additionalProperties: false
 properties:
   name:
     type: string

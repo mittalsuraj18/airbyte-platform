@@ -52,18 +52,18 @@ export const PartitionSection: React.FC<PartitionSectionProps> = ({ streamFieldP
           <BuilderField
             type="array"
             path={buildPath("values")}
-            label="Partition values"
+            label="Slice values"
             tooltip="List of values to iterate over"
           />
           <BuilderFieldWithInputs
             type="string"
             path={buildPath("cursor_field")}
-            label="Current partition value identifier"
-            tooltip="Name of the field on the stream_slice object which should hold the current partition value. Can be accessed from other components using {{ stream_slice.identifier }}"
+            label="Cursor field"
+            tooltip="Field on record to use as the cursor"
           />
           <ToggleGroupField<RequestOption>
-            label="Inject partition value into outgoing HTTP request"
-            tooltip="Optionally configures how the partition value will be sent in requests to the source API"
+            label="Slice request option"
+            tooltip="Optionally configures how the slice values will be sent in requests to the source API"
             fieldPath={buildPath("request_option")}
             initialValues={{
               inject_into: "request_parameter",

@@ -148,17 +148,32 @@ public class JsonSchemaValidator {
   }
 
   /**
-   * Test if a JSON object conforms to a given JSONSchema. Returns a list of error messages if there
-   * are any validation failures.
+   * Test if a JSON object conforms to a given JSONSchema. Returns the reason for failure if there are
+   * any.
    *
    * @param schemaJson JSONSchema to test against
    * @param objectJson object to test
-   * @return List of error messages
+   * @return List of failure reasons. If empty, then objectJson is valid.
    */
-  public List<String> getValidationMessages(final JsonNode schemaJson, final JsonNode objectJson) {
+  public List<String[]> getValidationMessageArgs(final JsonNode schemaJson, final JsonNode objectJson) {
     return validateInternal(schemaJson, objectJson)
         .stream()
-        .map(ValidationMessage::toString)
+        .map(ValidationMessage::getArguments)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Test if a JSON object conforms to a given JSONSchema. Returns the JSONPaths to the fields that
+   * failed validation if there are any.
+   *
+   * @param schemaJson JSONSchema to test against
+   * @param objectJson object to test
+   * @return List of paths to fields that failed validation. If empty, then objectJson is valid.
+   */
+  public List<String> getValidationMessagePaths(final JsonNode schemaJson, final JsonNode objectJson) {
+    return validateInternal(schemaJson, objectJson)
+        .stream()
+        .map(ValidationMessage::getPath)
         .collect(Collectors.toList());
   }
 

@@ -5,11 +5,6 @@ plugins {
 configurations.all {
     exclude group: 'io.micronaut.jaxrs'
     exclude group: 'io.micronaut.sql'
-
-    resolutionStrategy {
-        // Force to avoid updated version brought in transitively from Micronaut
-        force libs.platform.testcontainers.postgresql
-    }
 }
 
 dependencies {
@@ -19,8 +14,9 @@ dependencies {
     implementation project(':airbyte-commons-temporal')
     implementation project(':airbyte-commons-worker')
 
-    implementation libs.bundles.kubernetes.client
+    implementation 'io.fabric8:kubernetes-client:5.12.2'
     implementation libs.temporal.sdk
+
 
     api libs.junit.jupiter.api
 

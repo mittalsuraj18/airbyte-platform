@@ -10,7 +10,6 @@ import io.airbyte.config.persistence.StreamResetPersistence;
 import io.airbyte.db.Database;
 import io.airbyte.db.check.DatabaseMigrationCheck;
 import io.airbyte.db.factory.DatabaseCheckFactory;
-import io.airbyte.featureflag.FeatureFlagClient;
 import io.airbyte.persistence.job.DefaultJobPersistence;
 import io.airbyte.persistence.job.JobPersistence;
 import io.micronaut.context.annotation.Factory;
@@ -74,9 +73,8 @@ public class DatabaseBeanFactory {
   }
 
   @Singleton
-  public ConfigRepository configRepository(@Named("configDatabase") final Database configDatabase,
-                                           final FeatureFlagClient featureFlagClient) {
-    return new ConfigRepository(configDatabase, ConfigRepository.getMaxSecondsBetweenMessagesSupplier(featureFlagClient));
+  public ConfigRepository configRepository(@Named("configDatabase") final Database configDatabase) {
+    return new ConfigRepository(configDatabase);
   }
 
   /**

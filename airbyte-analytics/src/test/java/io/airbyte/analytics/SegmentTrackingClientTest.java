@@ -7,7 +7,6 @@ package io.airbyte.analytics;
 import static io.airbyte.analytics.SegmentTrackingClient.AIRBYTE_ANALYTIC_SOURCE_HEADER;
 import static io.airbyte.analytics.SegmentTrackingClient.AIRBYTE_SOURCE;
 import static io.airbyte.analytics.SegmentTrackingClient.AIRBYTE_VERSION_KEY;
-import static io.airbyte.analytics.SegmentTrackingClient.UNKNOWN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -115,9 +114,7 @@ class SegmentTrackingClientTest {
   void testTrack() {
     final ArgumentCaptor<TrackMessage.Builder> mockBuilder = ArgumentCaptor.forClass(TrackMessage.Builder.class);
     final ImmutableMap<String, Object> metadata =
-        ImmutableMap.of(AIRBYTE_VERSION_KEY, AIRBYTE_VERSION.serialize(),
-            "user_id", IDENTITY.getCustomerId(),
-            AIRBYTE_SOURCE, UNKNOWN);
+        ImmutableMap.of(AIRBYTE_VERSION_KEY, AIRBYTE_VERSION.serialize(), "user_id", IDENTITY.getCustomerId());
 
     segmentTrackingClient.track(WORKSPACE_ID, JUMP);
 
@@ -135,8 +132,7 @@ class SegmentTrackingClientTest {
         AIRBYTE_VERSION_KEY, AIRBYTE_VERSION.serialize(),
         EMAIL_KEY, EMAIL,
         "height", "80 meters",
-        "user_id", IDENTITY.getCustomerId(),
-        AIRBYTE_SOURCE, UNKNOWN);
+        "user_id", IDENTITY.getCustomerId());
 
     segmentTrackingClient.track(WORKSPACE_ID, JUMP, metadata);
 
@@ -169,8 +165,7 @@ class SegmentTrackingClientTest {
         AIRBYTE_VERSION_KEY, AIRBYTE_VERSION.serialize(),
         EMAIL_KEY, EMAIL,
         "height", "80 meters",
-        "user_id", IDENTITY.getCustomerId(),
-        AIRBYTE_SOURCE, UNKNOWN);
+        "user_id", IDENTITY.getCustomerId());
 
     segmentTrackingClient.track(WORKSPACE_ID, JUMP, metadata);
 

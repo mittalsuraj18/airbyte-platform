@@ -7,8 +7,6 @@ export const enum Namespace {
   USER = "User",
   CREDITS = "Credits",
   CONNECTOR_BUILDER = "ConnectorBuilder",
-  SCHEMA = "Schema",
-  ERD = "ERD",
 }
 
 export const enum Action {
@@ -31,8 +29,6 @@ export const enum Action {
   CHECKOUT_START = "CheckoutStart",
   LOAD_MORE_JOBS = "LoadMoreJobs",
   INVITE = "Invite",
-  OAUTH_ATTEMPT = "OAuthAttempt",
-  OAUTH_SUCCESS = "OAuthSuccess",
 
   // Connector Builder Actions
   CONNECTOR_BUILDER_START = "ConnectorBuilderStart",
@@ -62,10 +58,6 @@ export const enum Action {
   UI_COMPATIBLE_YAML_IMPORTED = "UiCompatibleYamlImported",
   INVALID_YAML_UPLOADED = "InvalidYamlUploaded",
   START_FROM_SCRATCH = "StartFromScratch",
-  CHANGE_PROJECT_VERSION = "ChangeProjectVersion",
-  PUBLISH_PROJECT = "PublishProject",
-  RELEASE_NEW_PROJECT_VERSION = "ReleaseNewProjectVersion",
-  CONNECTOR_BUILDER_DELETE = "ConnectorBuilderDelete",
 }
 
 export type EventParams = Record<string, unknown>;

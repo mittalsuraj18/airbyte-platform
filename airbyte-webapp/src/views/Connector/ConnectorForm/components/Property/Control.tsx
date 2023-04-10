@@ -8,6 +8,7 @@ import { TagInput } from "components/ui/TagInput/TagInput";
 import { TextArea } from "components/ui/TextArea";
 
 import { FormBaseItem } from "core/form/types";
+import { useExperiment } from "hooks/services/Experiment";
 import { isDefined } from "utils/common";
 
 import SecretConfirmationControl from "./SecretConfirmationControl";
@@ -23,6 +24,7 @@ interface ControlProps {
 
 export const Control: React.FC<ControlProps> = ({ property, name, disabled, error }) => {
   const [field, meta, helpers] = useField(name);
+  const useDatepickerExperiment = useExperiment("connector.form.useDatepicker", true);
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -45,12 +47,7 @@ export const Control: React.FC<ControlProps> = ({ property, name, disabled, erro
             name={name}
             itemType={property.itemType}
             fieldValue={field.value === undefined ? [] : Array.isArray(field.value) ? field.value : [field.value]}
-            onChange={(tagLabels) => {
-              helpers.setValue(tagLabels);
-              if (!meta.touched) {
-                helpers.setTouched(true);
-              }
-            }}
+            onChange={(tagLabels) => helpers.setValue(tagLabels)}
             error={!!meta.error}
             disabled={disabled}
           />
@@ -75,7 +72,11 @@ export const Control: React.FC<ControlProps> = ({ property, name, disabled, erro
     );
   }
 
-  if (property.type === "string" && (property.format === "date-time" || property.format === "date")) {
+  if (
+    property.type === "string" &&
+    (property.format === "date-time" || property.format === "date") &&
+    useDatepickerExperiment
+  ) {
     return (
       <DatePicker
         error={error}

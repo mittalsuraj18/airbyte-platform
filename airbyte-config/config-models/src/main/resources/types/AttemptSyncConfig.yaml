@@ -4,7 +4,7 @@
 title: AttemptSyncConfig
 description: attempt sync config
 type: object
-additionalProperties: true
+additionalProperties: false
 required:
   - sourceConfiguration
   - destinationConfiguration

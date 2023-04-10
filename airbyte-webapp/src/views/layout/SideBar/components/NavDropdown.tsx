@@ -1,7 +1,6 @@
 import classNames from "classnames";
 
 import { DropdownMenu, DropdownMenuOptionType } from "components/ui/DropdownMenu";
-import { Text } from "components/ui/Text";
 
 import styles from "./NavDropdown.module.scss";
 
@@ -18,7 +17,7 @@ export const NavDropdown: React.FC<NavDropdownProps> = ({ options, icon, label, 
       {({ open }) => (
         <button className={classNames(styles.dropdownMenuButton, styles.menuItem, { [styles.open]: open })}>
           {icon}
-          <Text size="sm">{label}</Text>
+          {label}
         </button>
       )}
     </DropdownMenu>

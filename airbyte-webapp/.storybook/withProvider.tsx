@@ -37,13 +37,7 @@ export const withProviders = (getStory) => (
       <QueryClientProvider client={queryClient}>
         <ServicesProvider>
           <MemoryRouter>
-            <IntlProvider
-              messages={messages}
-              locale={"en"}
-              defaultRichTextElements={{
-                b: (chunk) => <strong>{chunk}</strong>,
-              }}
-            >
+            <IntlProvider messages={messages} locale={"en"}>
               <ThemeProvider theme={theme}>
                 <ConfigServiceProvider config={config}>
                   <DocumentationPanelProvider>

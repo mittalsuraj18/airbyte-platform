@@ -43,6 +43,7 @@
 }
 
 .container {
+  width: 650px;
   flex-wrap: wrap;
   padding: variables.$spacing-md variables.$spacing-xl;
   background-color: white;

@@ -9,16 +9,10 @@ import io.airbyte.workers.process.IntegrationLauncher;
 import java.nio.file.Path;
 
 /**
- * Test-only launcher to launch {@link LimitedFatRecordSourceProcess}. Intended as a convenient test
- * harness for testing.
+ * Test-only launcher to launch {@link LimitedSourceProcess}. Intended as a convenient test harness
+ * for testing.
  */
 public class LimitedIntegrationLauncher implements IntegrationLauncher {
-
-  private final Process testProcess;
-
-  public LimitedIntegrationLauncher(Process testProcess) {
-    this.testProcess = testProcess;
-  }
 
   @Override
   public Process spec(Path jobRoot) throws WorkerException {
@@ -44,7 +38,7 @@ public class LimitedIntegrationLauncher implements IntegrationLauncher {
                       String stateFilename,
                       String stateContents)
       throws WorkerException {
-    return testProcess;
+    return new LimitedSourceProcess();
   }
 
   @Override

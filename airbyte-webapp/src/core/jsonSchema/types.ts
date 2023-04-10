@@ -5,9 +5,6 @@ interface AirbyteJSONSchemaProps {
   airbyte_hidden?: boolean;
   multiline?: boolean;
   order?: number;
-  group?: string;
-  always_show?: boolean;
-  pattern_descriptor?: string;
 }
 
 /**

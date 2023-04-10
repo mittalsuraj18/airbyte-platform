@@ -3,11 +3,6 @@ micronaut:
     name: airbyte-workers
   server:
     port: 9000
-  caches:
-    # used by RecordMetricActivity to cache repeated calls to workspaceApi.getWorkspaceByConnectionId.
-    # entries are UUID connectionIds, so 100,000 entries should be roughly 1.6MB
-    connection-workspace-id:
-      maximumSize: 100_000
 
 airbyte:
   activity:
@@ -52,7 +47,6 @@ airbyte:
           secret-access-key: ${STATE_STORAGE_S3_SECRET_ACCESS_KEY:}
   connector:
     specific-resource-defaults-enabled: ${CONNECTOR_SPECIFIC_RESOURCE_DEFAULTS_ENABLED:false}
-    datadog-support-names: ${CONNECTOR_DATADOG_SUPPORT_NAMES:}
   container:
     orchestrator:
       enabled: ${CONTAINER_ORCHESTRATOR_ENABLED:false}
@@ -170,7 +164,6 @@ airbyte:
             limit: ${NORMALIZATION_JOB_MAIN_CONTAINER_MEMORY_LIMIT:}
             request: ${NORMALIZATION_JOB_MAIN_CONTAINER_MEMORY_REQUEST:}
     replication:
-      persistence-flush-period-sec: ${REPLICATION_FLUSH_PERIOD_SECONDS:60}
       orchestrator:
         cpu:
           limit: ${REPLICATION_ORCHESTRATOR_CPU_LIMIT:}
@@ -236,9 +229,7 @@ endpoints:
     enabled: true
     sensitive: false
   health:
-    enabled: false
-    jdbc:
-      enabled: false
+    enabled: true
     sensitive: false
   info:
     enabled: true

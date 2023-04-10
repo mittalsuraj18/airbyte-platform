@@ -4,7 +4,7 @@
 title: JobSyncConfig
 description: job sync config
 type: object
-additionalProperties: true
+additionalProperties: false
 required:
   - configuredAirbyteCatalog
   - sourceDockerImage

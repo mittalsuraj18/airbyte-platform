@@ -1,5 +1,5 @@
 import { Formik } from "formik";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 
 import { FormChangeTracker } from "components/common/FormChangeTracker";
 
@@ -12,11 +12,11 @@ import { FormikPatch } from "core/form/FormikPatch";
 import { useFormChangeTrackerService, useUniqueFormId } from "hooks/services/FormChangeTracker";
 
 import { ConnectorFormContextProvider } from "./connectorFormContext";
-import { FormRootProps, FormRoot } from "./FormRoot";
+import { BaseFormRootProps, FormRoot } from "./FormRoot";
 import { ConnectorFormValues } from "./types";
 import { useBuildForm } from "./useBuildForm";
 
-export interface ConnectorFormProps extends Omit<FormRootProps, "formFields" | "castValues" | "groupStructure"> {
+interface BaseConnectorFormProps extends Omit<BaseFormRootProps, "formFields" | "castValues"> {
   formType: "source" | "destination";
   formId?: string;
   /**
@@ -29,6 +29,19 @@ export interface ConnectorFormProps extends Omit<FormRootProps, "formFields" | "
   formValues?: Partial<ConnectorFormValues>;
   connectorId?: string;
 }
+
+interface CardConnectorFormProps extends BaseConnectorFormProps {
+  renderWithCard: true;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  full?: boolean;
+}
+
+interface BareConnectorFormProps extends BaseConnectorFormProps {
+  renderWithCard?: false;
+}
+
+export type ConnectorFormProps = CardConnectorFormProps | BareConnectorFormProps;
 
 export const ConnectorForm: React.FC<ConnectorFormProps> = (props) => {
   const formId = useUniqueFormId(props.formId);
@@ -44,7 +57,7 @@ export const ConnectorForm: React.FC<ConnectorFormProps> = (props) => {
     connectorId,
   } = props;
 
-  const { formFields, initialValues, validationSchema, groups } = useBuildForm(
+  const { formFields, initialValues, validationSchema } = useBuildForm(
     Boolean(isEditMode),
     formType,
     selectedConnectorDefinitionSpecification,
@@ -68,12 +81,17 @@ export const ConnectorForm: React.FC<ConnectorFormProps> = (props) => {
     [clearFormChange, formId, castValues, onSubmit]
   );
 
+  const isInitialValid = useMemo(
+    () => Boolean(validationSchema.isValidSync(initialValues)),
+    [initialValues, validationSchema]
+  );
+
   return (
     <Formik
       validateOnBlur
       validateOnChange
-      validateOnMount
       initialValues={initialValues}
+      isInitialValid={isInitialValid}
       validationSchema={validationSchema}
       onSubmit={onFormSubmit}
       enableReinitialize
@@ -90,7 +108,7 @@ export const ConnectorForm: React.FC<ConnectorFormProps> = (props) => {
         >
           <FormikPatch />
           <FormChangeTracker changed={dirty} formId={formId} />
-          <FormRoot {...props} formFields={formFields} castValues={castValues} groupStructure={groups} />
+          <FormRoot {...props} formFields={formFields} castValues={castValues} />
         </ConnectorFormContextProvider>
       )}
     </Formik>

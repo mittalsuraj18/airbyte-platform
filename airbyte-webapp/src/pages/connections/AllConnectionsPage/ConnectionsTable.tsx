@@ -7,11 +7,11 @@ import { getConnectionTableData } from "components/EntityTable/utils";
 
 import { WebBackendConnectionListItem } from "core/request/AirbyteClient";
 
-interface ConnectionsTableProps {
+interface IProps {
   connections: WebBackendConnectionListItem[];
 }
 
-const ConnectionsTable: React.FC<ConnectionsTableProps> = ({ connections }) => {
+const ConnectionsTable: React.FC<IProps> = ({ connections }) => {
   const navigate = useNavigate();
 
   const data = getConnectionTableData(connections, "connection");

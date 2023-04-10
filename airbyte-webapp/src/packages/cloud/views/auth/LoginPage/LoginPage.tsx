@@ -19,10 +19,9 @@ import { BottomBlock, FieldItem } from "packages/cloud/views/auth/components/For
 import { FormTitle } from "packages/cloud/views/auth/components/FormTitle";
 
 import styles from "./LoginPage.module.scss";
-import { Disclaimer, EmailField } from "../components/FormFields/FormFields";
-import { LoginSignupNavigation } from "../components/LoginSignupNavigation";
 import { OAuthLogin } from "../OAuthLogin";
 import { Separator } from "../SignupPage/components/Separator";
+import { Disclaimer } from "../SignupPage/components/SignupForm";
 
 const LoginPageValidationSchema = yup.object().shape({
   email: yup.string().email("form.email.error").required("form.empty.error"),
@@ -38,7 +37,7 @@ export const LoginPage: React.FC = () => {
   useTrackPage(PageTrackingCodes.LOGIN);
 
   return (
-    <FlexContainer direction="column" gap="xl" className={styles.container}>
+    <FlexContainer direction="column" gap="xl">
       <HeadTitle titles={[{ id: "login.login" }]} />
       <FormTitle>
         <FormattedMessage id="login.loginTitle" />
@@ -69,7 +68,20 @@ export const LoginPage: React.FC = () => {
         {({ isSubmitting }) => (
           <Form>
             <FieldItem>
-              <EmailField />
+              <Field name="email">
+                {({ field, meta }: FieldProps<string>) => (
+                  <LabeledInput
+                    {...field}
+                    label={<FormattedMessage id="login.yourEmail" />}
+                    placeholder={formatMessage({
+                      id: "login.yourEmail.placeholder",
+                    })}
+                    type="text"
+                    error={!!meta.error && meta.touched}
+                    message={meta.touched && meta.error && formatMessage({ id: meta.error })}
+                  />
+                )}
+              </Field>
             </FieldItem>
             <FieldItem>
               <Field name="password">
@@ -83,7 +95,6 @@ export const LoginPage: React.FC = () => {
                     type="password"
                     error={!!meta.error && meta.touched}
                     message={meta.touched && meta.error && formatMessage({ id: meta.error })}
-                    data-testid="login.password"
                   />
                 )}
               </Field>
@@ -97,7 +108,7 @@ export const LoginPage: React.FC = () => {
                 >
                   <FormattedMessage id="login.forgotPassword" />
                 </Link>
-                <Button size="lg" type="submit" isLoading={isSubmitting} data-testid="login.submit">
+                <Button size="lg" type="submit" isLoading={isSubmitting}>
                   <FormattedMessage id="login.login" />
                 </Button>
               </>
@@ -106,7 +117,6 @@ export const LoginPage: React.FC = () => {
         )}
       </Formik>
       <Disclaimer />
-      <LoginSignupNavigation to="signup" />
     </FlexContainer>
   );
 };

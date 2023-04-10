@@ -2,29 +2,38 @@ import path from "path";
 
 import basicSsl from "@vitejs/plugin-basic-ssl";
 import react from "@vitejs/plugin-react";
-import { UserConfig } from "vite";
+import { loadEnv, UserConfig } from "vite";
 import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
 import svgrPlugin from "vite-plugin-svgr";
 import viteTsconfigPaths from "vite-tsconfig-paths";
 
 import { buildInfo, docMiddleware } from "./packages/vite-plugins";
-import { environmentVariables } from "./packages/vite-plugins/environment-variables";
-import { experimentOverwrites } from "./packages/vite-plugins/experiment-overwrites";
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+  // Load variables from all .env files
+  process.env = {
+    ...process.env,
+    ...loadEnv(mode, __dirname, ""),
+  };
+
+  // Environment variables that should be available in the frontend
+  const frontendEnvVariables = loadEnv(mode, __dirname, ["REACT_APP_"]);
+  // Create an object of defines that will shim all required process.env variables.
+  const processEnv = {
+    "process.env.NODE_ENV": JSON.stringify(mode),
+    ...Object.fromEntries(
+      Object.entries(frontendEnvVariables).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)])
+    ),
+  };
+
   const config: UserConfig = {
     plugins: [
-      environmentVariables(),
       basicSsl(),
       react(),
       buildInfo(),
       viteTsconfigPaths(),
-      svgrPlugin({
-        svgrOptions: {
-          titleProp: true,
-        },
-      }),
+      svgrPlugin(),
       checker({
         // Enable checks while building the app (not just in dev mode)
         enableBuild: true,
@@ -44,7 +53,6 @@ export default defineConfig(() => {
         typescript: true,
       }),
       docMiddleware(),
-      experimentOverwrites(),
     ],
     // Use `REACT_APP_` as a prefix for environment variables that should be accessible from within FE code.
     envPrefix: ["REACT_APP_"],
@@ -53,12 +61,14 @@ export default defineConfig(() => {
       outDir: "build/app",
     },
     server: {
-      host: true,
       port: Number(process.env.PORT) || 3000,
       strictPort: true,
       headers: {
         "Content-Security-Policy": "script-src * 'unsafe-inline'; worker-src self blob:;",
       },
+    },
+    define: {
+      ...processEnv,
     },
     css: {
       modules: {

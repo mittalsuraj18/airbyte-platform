@@ -1,7 +1,6 @@
 @use "scss/variables";
 @use "scss/colors";
 @use "scss/mixins";
-@use "../builderVariables.scss";
 
 .container {
   height: 100%;
@@ -11,7 +10,7 @@
 .sidebar {
   @include mixins.shadow;
 
-  width: builderVariables.$sideBarWidth;
+  width: 220px;
   flex: 0 0 auto;
   background-color: colors.$white;
   border-left: 1px solid colors.$grey-100;

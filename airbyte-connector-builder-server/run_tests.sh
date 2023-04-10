@@ -6,7 +6,8 @@ cd $1
 set -e
 
 # Install dependencies
-pip install -r requirements-tests.txt
+pip install -q -e .
+pip install -q -e '.[tests]'
 
 # Run the tests
 python -m coverage run -m pytest -p no:logging --disable-warnings unit_tests -c pytest.ini

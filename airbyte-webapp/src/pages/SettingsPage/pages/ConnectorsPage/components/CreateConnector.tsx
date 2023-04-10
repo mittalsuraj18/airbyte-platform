@@ -9,7 +9,6 @@ import { Button } from "components/ui/Button";
 import { DropdownMenu, DropdownMenuOptionType } from "components/ui/DropdownMenu";
 
 import { useExperiment } from "hooks/services/Experiment";
-import { ConnectorBuilderRoutePaths } from "pages/connectorBuilder/ConnectorBuilderRoutes";
 import { RoutePaths, DestinationPaths } from "pages/routePaths";
 import { useCreateDestinationDefinition } from "services/connector/DestinationDefinitionService";
 import { useCreateSourceDefinition } from "services/connector/SourceDefinitionService";
@@ -89,7 +88,7 @@ const CreateConnector: React.FC<IProps> = ({ type }) => {
           options={[
             {
               as: "a",
-              href: `../../${RoutePaths.ConnectorBuilder}/${ConnectorBuilderRoutePaths.Create}`,
+              href: `../../${RoutePaths.ConnectorBuilder}`,
               icon: <BuilderIcon />,
               displayName: formatMessage({ id: "admin.newConnector.build" }),
               internal: true,

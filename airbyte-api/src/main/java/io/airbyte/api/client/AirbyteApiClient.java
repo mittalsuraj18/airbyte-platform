@@ -7,7 +7,6 @@ package io.airbyte.api.client;
 import com.google.common.annotations.VisibleForTesting;
 import io.airbyte.api.client.generated.AttemptApi;
 import io.airbyte.api.client.generated.ConnectionApi;
-import io.airbyte.api.client.generated.ConnectorBuilderProjectApi;
 import io.airbyte.api.client.generated.DestinationApi;
 import io.airbyte.api.client.generated.DestinationDefinitionApi;
 import io.airbyte.api.client.generated.DestinationDefinitionSpecificationApi;
@@ -47,7 +46,6 @@ public class AirbyteApiClient {
   public static final int DEFAULT_FINAL_INTERVAL_SECS = 10 * 60;
 
   private final ConnectionApi connectionApi;
-  private final ConnectorBuilderProjectApi connectorBuilderProjectApi;
   private final DestinationDefinitionApi destinationDefinitionApi;
   private final DestinationApi destinationApi;
   private final DestinationDefinitionSpecificationApi destinationSpecificationApi;
@@ -64,7 +62,6 @@ public class AirbyteApiClient {
 
   public AirbyteApiClient(final ApiClient apiClient) {
     connectionApi = new ConnectionApi(apiClient);
-    connectorBuilderProjectApi = new ConnectorBuilderProjectApi(apiClient);
     destinationDefinitionApi = new DestinationDefinitionApi(apiClient);
     destinationApi = new DestinationApi(apiClient);
     destinationSpecificationApi = new DestinationDefinitionSpecificationApi(apiClient);
@@ -82,10 +79,6 @@ public class AirbyteApiClient {
 
   public ConnectionApi getConnectionApi() {
     return connectionApi;
-  }
-
-  public ConnectorBuilderProjectApi getConnectorBuilderProjectApi() {
-    return connectorBuilderProjectApi;
   }
 
   public DestinationDefinitionApi getDestinationDefinitionApi() {
