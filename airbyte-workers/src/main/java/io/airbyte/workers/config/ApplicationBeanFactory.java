@@ -13,6 +13,7 @@ import io.airbyte.config.AirbyteConfigValidator;
 import io.airbyte.config.Configs.DeploymentMode;
 import io.airbyte.config.Configs.SecretPersistenceType;
 import io.airbyte.config.Configs.TrackingStrategy;
+import io.airbyte.config.persistence.ActorDefinitionVersionHelper;
 import io.airbyte.config.persistence.ConfigRepository;
 import io.airbyte.config.persistence.split_secrets.JsonSecretsProcessor;
 import io.airbyte.metrics.lib.MetricClient;
@@ -25,7 +26,9 @@ import io.airbyte.persistence.job.WebUrlHelper;
 import io.airbyte.persistence.job.WorkspaceHelper;
 import io.airbyte.persistence.job.tracker.JobTracker;
 import io.airbyte.workers.WorkerConfigs;
+import io.airbyte.workers.internal.state_aggregator.StateAggregatorFactory;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Prototype;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.core.util.StringUtils;
@@ -34,6 +37,8 @@ import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
@@ -98,12 +103,14 @@ public class ApplicationBeanFactory {
                                  final ConfigRepository configRepository,
                                  final TrackingClient trackingClient,
                                  final WebUrlHelper webUrlHelper,
-                                 final WorkspaceHelper workspaceHelper) {
+                                 final WorkspaceHelper workspaceHelper,
+                                 final ActorDefinitionVersionHelper actorDefinitionVersionHelper) {
     return new JobNotifier(
         webUrlHelper,
         configRepository,
         workspaceHelper,
-        trackingClient);
+        trackingClient,
+        actorDefinitionVersionHelper);
   }
 
   @Singleton
@@ -111,8 +118,9 @@ public class ApplicationBeanFactory {
   public JobTracker jobTracker(
                                final ConfigRepository configRepository,
                                final JobPersistence jobPersistence,
-                               final TrackingClient trackingClient) {
-    return new JobTracker(configRepository, jobPersistence, trackingClient);
+                               final TrackingClient trackingClient,
+                               final ActorDefinitionVersionHelper actorDefinitionVersionHelper) {
+    return new JobTracker(configRepository, jobPersistence, trackingClient, actorDefinitionVersionHelper);
   }
 
   @Singleton
@@ -153,6 +161,17 @@ public class ApplicationBeanFactory {
 
   private <T> T convertToEnum(final String value, final Function<String, T> creatorFunction, final T defaultValue) {
     return StringUtils.isNotEmpty(value) ? creatorFunction.apply(value.toUpperCase(Locale.ROOT)) : defaultValue;
+  }
+
+  @Prototype
+  @Named("syncPersistenceExecutorService")
+  public ScheduledExecutorService syncPersistenceExecutorService() {
+    return Executors.newSingleThreadScheduledExecutor();
+  }
+
+  @Singleton
+  public StateAggregatorFactory stateAggregatorFactory(final FeatureFlags featureFlags) {
+    return new StateAggregatorFactory(featureFlags);
   }
 
 }

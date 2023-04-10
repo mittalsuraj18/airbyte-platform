@@ -22,7 +22,7 @@ VERSION=dev BASIC_AUTH_USERNAME="" BASIC_AUTH_PASSWORD="" TRACKING_STRATEGY=logg
 docker run --rm -d -p 5433:5432 -e POSTGRES_PASSWORD=secret_password -e POSTGRES_DB=airbyte_ci_source --name airbyte_ci_pg_source postgres
 docker run --rm -d -p 5434:5432 -e POSTGRES_PASSWORD=secret_password -e POSTGRES_DB=airbyte_ci_destination --name airbyte_ci_pg_destination postgres
 # network name will be "${name-of-current-dir}_airbyte_internal"
-docker run --rm -d -p 6767:6767 --network="${PWD##*/}_airbyte_internal" --mount type=bind,source="$(pwd)"/airbyte-webapp-e2e-tests/dummy_api.js,target=/index.js --name=dummy_api node:16-alpine "index.js"
+docker run --rm -d -p 6767:6767 --mount type=bind,source="$(pwd)"/airbyte-webapp-e2e-tests/dummy_api.js,target=/index.js --name=dummy_api node:16-alpine "index.js"
 
 echo "Waiting for health API to be available..."
 # Retry loading the health API of the server to check that the server is fully available
@@ -31,5 +31,12 @@ until $(curl --output /dev/null --fail --silent --max-time 5 --head localhost:80
   sleep 10
 done
 
-echo "Running e2e tests via gradle"
-./gradlew --no-daemon :airbyte-webapp-e2e-tests:e2etest -PcypressWebappKey=$CYPRESS_WEBAPP_KEY
+echo "Running e2e tests via gradle without cypress key"
+
+if ./gradlew --no-daemon :airbyte-webapp-e2e-tests:e2etest ; then
+  echo "Tests succeeded"
+else
+  echo "Tests failed, retry and record"
+  ./gradlew --no-daemon :airbyte-webapp-e2e-tests:e2etest -PcypressWebappKey=$CYPRESS_WEBAPP_KEY ;
+fi
+

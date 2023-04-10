@@ -14,18 +14,13 @@ import io.airbyte.commons.temporal.scheduling.CheckConnectionWorkflow;
 import io.airbyte.commons.temporal.scheduling.ConnectionManagerWorkflow;
 import io.airbyte.commons.temporal.scheduling.DiscoverCatalogWorkflow;
 import io.airbyte.commons.temporal.scheduling.SpecWorkflow;
-import io.airbyte.commons.temporal.scheduling.SyncWorkflow;
 import io.airbyte.commons.temporal.scheduling.state.WorkflowState;
-import io.airbyte.config.AttemptSyncConfig;
 import io.airbyte.config.ConnectorJobOutput;
 import io.airbyte.config.JobCheckConnectionConfig;
 import io.airbyte.config.JobDiscoverCatalogConfig;
 import io.airbyte.config.JobGetSpecConfig;
-import io.airbyte.config.JobSyncConfig;
 import io.airbyte.config.StandardCheckConnectionInput;
 import io.airbyte.config.StandardDiscoverCatalogInput;
-import io.airbyte.config.StandardSyncInput;
-import io.airbyte.config.StandardSyncOutput;
 import io.airbyte.config.persistence.StreamResetPersistence;
 import io.airbyte.persistence.job.models.IntegrationLauncherConfig;
 import io.airbyte.persistence.job.models.JobRunConfig;
@@ -433,61 +428,6 @@ public class TemporalClient {
 
     return execute(jobRunConfig,
         () -> getWorkflowStubWithTaskQueue(DiscoverCatalogWorkflow.class, taskQueue).run(jobRunConfig, launcherConfig, input));
-  }
-
-  /**
-   * Submit a sync job to temporal.
-   *
-   * @param jobId job id
-   * @param attempt attempt
-   * @param config sync config
-   * @param attemptConfig attempt config
-   * @param connectionId connection id
-   * @return sync output
-   */
-  public TemporalResponse<StandardSyncOutput> submitSync(final long jobId,
-                                                         final int attempt,
-                                                         final JobSyncConfig config,
-                                                         final AttemptSyncConfig attemptConfig,
-                                                         final UUID connectionId) {
-    final JobRunConfig jobRunConfig = TemporalWorkflowUtils.createJobRunConfig(jobId, attempt);
-
-    final IntegrationLauncherConfig sourceLauncherConfig = new IntegrationLauncherConfig()
-        .withJobId(String.valueOf(jobId))
-        .withAttemptId((long) attempt)
-        .withDockerImage(config.getSourceDockerImage())
-        .withProtocolVersion(config.getSourceProtocolVersion())
-        .withIsCustomConnector(config.getIsSourceCustomConnector());
-
-    final IntegrationLauncherConfig destinationLauncherConfig = new IntegrationLauncherConfig()
-        .withJobId(String.valueOf(jobId))
-        .withAttemptId((long) attempt)
-        .withDockerImage(config.getDestinationDockerImage())
-        .withProtocolVersion(config.getDestinationProtocolVersion())
-        .withIsCustomConnector(config.getIsDestinationCustomConnector());
-
-    final StandardSyncInput input = new StandardSyncInput()
-        .withNamespaceDefinition(config.getNamespaceDefinition())
-        .withNamespaceFormat(config.getNamespaceFormat())
-        .withPrefix(config.getPrefix())
-        .withSourceConfiguration(attemptConfig.getSourceConfiguration())
-        .withDestinationConfiguration(attemptConfig.getDestinationConfiguration())
-        .withOperationSequence(config.getOperationSequence())
-        .withCatalog(config.getConfiguredAirbyteCatalog())
-        .withState(attemptConfig.getState())
-        .withResourceRequirements(config.getResourceRequirements())
-        .withSourceResourceRequirements(config.getSourceResourceRequirements())
-        .withDestinationResourceRequirements(config.getDestinationResourceRequirements())
-        .withConnectionId(connectionId)
-        .withWorkspaceId(config.getWorkspaceId());
-
-    return execute(jobRunConfig,
-        () -> getWorkflowStub(SyncWorkflow.class, TemporalJobType.SYNC).run(
-            jobRunConfig,
-            sourceLauncherConfig,
-            destinationLauncherConfig,
-            input,
-            connectionId));
   }
 
   /**
